@@ -4,7 +4,7 @@ import com.cabcta10.weightlossapplication.entity.Settings
 import kotlinx.coroutines.flow.Flow
 
 interface SettingsRepository {
-    fun getSettings(): Flow<List<Settings>>
+    fun getSettings(): Flow<Settings>
 
     suspend fun insertSettings(settings: Settings)
 

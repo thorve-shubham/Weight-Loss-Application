@@ -6,7 +6,7 @@ import com.cabcta10.weightlossapplication.repository.SettingsRepository
 import kotlinx.coroutines.flow.Flow
 
 class SettingsRepositoryImpl(private val settingsDao: SettingsDao) : SettingsRepository {
-    override fun getSettings(): Flow<List<Settings>> {
+    override fun getSettings(): Flow<Settings> {
         return settingsDao.getSettings()
     }
 
