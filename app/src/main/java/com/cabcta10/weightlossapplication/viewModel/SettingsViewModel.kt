@@ -19,7 +19,6 @@ class SettingsViewModel(private val settingsRepository: SettingsRepository) : Vi
     val settingsScreenUiState: StateFlow<SettingsScreenUiState> = _settingsScreenUiState.asStateFlow()
 
     init {
-        // Fetch details from the database when ViewModel is initialized
         fetchDataFromDatabase()
     }
 
