@@ -22,6 +22,6 @@ interface SettingsDao {
     suspend fun delete(item: Settings)
 
     @Query(value = "SELECT * from settings")
-    fun getSettings(id: Int): Flow<Settings>
+    fun getSettings(): Flow<List<Settings>>
 
 }
