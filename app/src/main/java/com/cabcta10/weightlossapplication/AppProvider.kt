@@ -9,7 +9,7 @@ import com.cabcta10.weightlossapplication.viewModel.SettingsViewModel
 object AppProvider {
     val Factory = viewModelFactory {
         initializer {
-            SettingsViewModel(this.healthApp().container.settingsRepository)
+            SettingsViewModel(this.healthApp().container.settingsRepository, this.healthApp().applicationContext)
         }
     }
 }

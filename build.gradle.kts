@@ -10,3 +10,7 @@ buildscript {
         set("room_version", "2.5.2")
     }
 }
+
+tasks.register("clean", Delete::class) {
+    delete(rootProject.buildDir)
+}

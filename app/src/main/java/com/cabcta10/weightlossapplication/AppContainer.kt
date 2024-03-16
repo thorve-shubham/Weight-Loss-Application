@@ -11,6 +11,6 @@ interface AppContainer {
 class AppDataContainer(private val context: Context) : AppContainer {
 
     override val settingsRepository: SettingsRepository by lazy {
-        SettingsRepositoryImpl(AppDatabase.getDatabase(context).mealDAO())
+        SettingsRepositoryImpl(AppDatabase.getDatabase(context).settingsDAO())
     }
 }

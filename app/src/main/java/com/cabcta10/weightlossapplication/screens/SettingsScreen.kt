@@ -1,16 +1,22 @@
 package com.cabcta10.weightlossapplication.screens
 
 import android.annotation.SuppressLint
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material3.Button
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
@@ -22,14 +28,13 @@ import kotlinx.coroutines.launch
 
 @Composable
 fun GroceryStoreCoordinates(groceryCoordinates: GroceryCoordinates,
-                            updateStoreCoordinates: (GroceryCoordinates)-> Unit,
-                            onSave: () -> Unit) {
-
+                            updateStoreCoordinates: (GroceryCoordinates)-> Unit) {
     Column(
         modifier = Modifier
             .fillMaxWidth()
             .padding(16.dp)
     ) {
+        Text(text = "Enter Grocery Coordinates", modifier = Modifier.padding(10.dp))
         OutlinedTextField(
             value = groceryCoordinates.latitude,
             onValueChange = { updateStoreCoordinates(groceryCoordinates.copy(latitude = it)) },
@@ -49,6 +54,35 @@ fun GroceryStoreCoordinates(groceryCoordinates: GroceryCoordinates,
     }
 }
 
+@Composable
+fun ApplySettings(
+    onCancelClick: () -> Unit,
+    onApplyClick: () -> Unit
+) {
+    Column(
+        modifier = Modifier.fillMaxSize()
+            .padding(20.dp)
+    ) {
+        // Content of your settings here
+
+        Spacer(modifier = Modifier.weight(1f))
+
+        // Buttons at the bottom
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceEvenly,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Button(onClick = onCancelClick) {
+                Text(text = "Cancel")
+            }
+            Button(onClick = onApplyClick) {
+                Text(text = "Apply")
+            }
+        }
+    }
+}
+
 @SuppressLint("StateFlowValueCalledInComposition")
 @Composable
 fun SettingsScreen(
@@ -57,11 +91,12 @@ fun SettingsScreen(
     val coroutineScope = rememberCoroutineScope()
     val settingsScreenUiState by settingsViewModel.settingsScreenUiState.collectAsState()
     GroceryStoreCoordinates(groceryCoordinates = settingsScreenUiState.groceryStoreCoordinates,
-        updateStoreCoordinates = settingsViewModel::updateStoreCoordinates,
-        onSave = {
-            coroutineScope.launch {
-                settingsViewModel.saveSettings()
-            }
-        })
+        updateStoreCoordinates = settingsViewModel::updateStoreCoordinates
+    )
+    ApplySettings({ 1+2 }, {
+        coroutineScope.launch {
+            settingsViewModel.saveSettings()
+        }
+    })
 }
 
