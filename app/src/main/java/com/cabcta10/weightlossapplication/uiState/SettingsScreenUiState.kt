@@ -1,7 +1,6 @@
 package com.cabcta10.weightlossapplication.uiState
 
 import com.cabcta10.weightlossapplication.entity.Settings
-import kotlinx.coroutines.flow.Flow
 
 data class SettingsScreenUiState(
     val groceryStoreCoordinates: GroceryCoordinates = GroceryCoordinates()

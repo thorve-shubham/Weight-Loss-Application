@@ -1,6 +1,7 @@
 package com.cabcta10.weightlossapplication.screens
 
 import android.annotation.SuppressLint
+import android.content.Context
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -18,6 +19,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -63,11 +65,8 @@ fun ApplySettings(
         modifier = Modifier.fillMaxSize()
             .padding(20.dp)
     ) {
-        // Content of your settings here
-
         Spacer(modifier = Modifier.weight(1f))
 
-        // Buttons at the bottom
         Row(
             modifier = Modifier.fillMaxWidth(),
             horizontalArrangement = Arrangement.SpaceEvenly,
@@ -86,17 +85,25 @@ fun ApplySettings(
 @SuppressLint("StateFlowValueCalledInComposition")
 @Composable
 fun SettingsScreen(
-    settingsViewModel: SettingsViewModel = viewModel(factory = AppProvider.Factory)
+    context: Context = LocalContext.current,
+    settingsViewModel: SettingsViewModel = viewModel(factory = AppProvider.Factory(context))
 ) {
+
     val coroutineScope = rememberCoroutineScope()
     val settingsScreenUiState by settingsViewModel.settingsScreenUiState.collectAsState()
+
+
     GroceryStoreCoordinates(groceryCoordinates = settingsScreenUiState.groceryStoreCoordinates,
         updateStoreCoordinates = settingsViewModel::updateStoreCoordinates
     )
+
     ApplySettings({ 1+2 }, {
         coroutineScope.launch {
             settingsViewModel.saveSettings()
         }
     })
 }
+
+
+
 
