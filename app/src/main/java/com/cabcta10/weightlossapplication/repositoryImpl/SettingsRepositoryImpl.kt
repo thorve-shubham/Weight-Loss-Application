@@ -18,4 +18,8 @@ class SettingsRepositoryImpl(private val settingsDao: SettingsDao) : SettingsRep
         settingsDao.update(settings)
     }
 
+    override suspend fun deleteSettings(settings: Settings) {
+        settingsDao.delete(settings)
+    }
+
 }
