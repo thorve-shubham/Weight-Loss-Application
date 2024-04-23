@@ -1,5 +1,6 @@
 package com.cabcta10.weightlossapplication.viewModel
 
+import android.app.TimePickerDialog
 import android.content.Context
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -14,7 +15,7 @@ import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-
+import java.util.*
 
 class SettingsViewModel (private val settingsRepository: SettingsRepository, private val context: Context) : ViewModel()  {
 
@@ -57,6 +58,11 @@ class SettingsViewModel (private val settingsRepository: SettingsRepository, pri
         }
     }
 
+    fun getSleepTimings(): String {
+        return _settingsScreenUiState.value.userUpdateValues.sleepHours;
+    }
+
+
     suspend fun saveSettings() {
         if(!settingsExists)
             settingsRepository.insertSettings(settingsScreenUiState.value.toSettings())
@@ -71,5 +77,6 @@ class SettingsViewModel (private val settingsRepository: SettingsRepository, pri
     suspend fun deleteSettings() {
         settingsRepository.deleteSettings(settingsScreenUiState.value.toSettings())
     }
+
 
 }

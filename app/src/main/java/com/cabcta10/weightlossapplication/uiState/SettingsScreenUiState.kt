@@ -22,8 +22,9 @@ data class UserUpdateValues(
     val groceryLocationLongitude : String = "",
     val gymLocationLatitude : String = "",
     val gymLocationLongitude : String = "",
-    val sleepHours : String = "",
-
+    val sleepHours : String = ""
+//    val sleepStartTime: String = "",
+//    val sleepEndTime: String = ""
     )
 
 fun SettingsScreenUiState.toSettings() : Settings = Settings(
