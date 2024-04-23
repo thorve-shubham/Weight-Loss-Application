@@ -41,6 +41,20 @@ class SettingsViewModel (private val settingsRepository: SettingsRepository, pri
         }
     }
 
+    private fun fetchStepCountValuesFromDatabase() {
+        viewModelScope.launch {
+            settingsRepository.getSettings().collect { settingsFromDatabase ->
+                if(settingsFromDatabase != null) {
+                    settingsExists = true
+                    val groceryCoordinates = GroceryCoordinates(latitude = settingsFromDatabase.groceryLocationLatitude.toString(), longitude = settingsFromDatabase.groceryLocationLongitude.toString())
+                    _settingsScreenUiState.value = _settingsScreenUiState.value.copy(
+                        groceryStoreCoordinates = groceryCoordinates
+                    )
+                }
+            }
+        }
+    }
+
     fun updateStoreCoordinates(groceryCoordinates: GroceryCoordinates) {
         _settingsScreenUiState.update { currentState ->
             currentState.copy(
