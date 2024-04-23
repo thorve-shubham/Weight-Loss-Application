@@ -9,4 +9,6 @@ interface SettingsRepository {
     suspend fun insertSettings(settings: Settings)
 
     suspend fun updateSettings(settings: Settings)
+
+    suspend fun deleteSettings(settings: Settings)
 }

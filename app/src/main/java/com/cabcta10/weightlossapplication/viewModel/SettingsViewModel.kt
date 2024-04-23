@@ -7,6 +7,7 @@ import com.cabcta10.weightlossapplication.repository.SettingsRepository
 import com.cabcta10.weightlossapplication.service.GeofenceManagerService
 import com.cabcta10.weightlossapplication.uiState.GroceryCoordinates
 import com.cabcta10.weightlossapplication.uiState.SettingsScreenUiState
+import com.cabcta10.weightlossapplication.uiState.UserUpdateValues
 import com.cabcta10.weightlossapplication.uiState.toSettings
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -31,7 +32,7 @@ class SettingsViewModel (private val settingsRepository: SettingsRepository, pri
             settingsRepository.getSettings().collect { settingsFromDatabase ->
                 if(settingsFromDatabase != null) {
                     settingsExists = true
-                    val groceryCoordinates = GroceryCoordinates(latitude = settingsFromDatabase.latitude.toString(), longitude = settingsFromDatabase.longitude.toString())
+                    val groceryCoordinates = GroceryCoordinates(latitude = settingsFromDatabase.groceryLocationLatitude.toString(), longitude = settingsFromDatabase.groceryLocationLongitude.toString())
                     _settingsScreenUiState.value = _settingsScreenUiState.value.copy(
                         groceryStoreCoordinates = groceryCoordinates
                     )
@@ -40,10 +41,18 @@ class SettingsViewModel (private val settingsRepository: SettingsRepository, pri
         }
     }
 
-     fun updateStoreCoordinates(groceryCoordinates: GroceryCoordinates) {
+    fun updateStoreCoordinates(groceryCoordinates: GroceryCoordinates) {
         _settingsScreenUiState.update { currentState ->
             currentState.copy(
                 groceryStoreCoordinates = groceryCoordinates
+            )
+        }
+    }
+
+    fun updateUserDetailsValue(userValues: UserUpdateValues) {
+        _settingsScreenUiState.update { currentState ->
+            currentState.copy(
+                userUpdateValues = userValues
             )
         }
     }
@@ -57,6 +66,10 @@ class SettingsViewModel (private val settingsRepository: SettingsRepository, pri
         geofenceManagerService.addGeofence(_settingsScreenUiState.value.groceryStoreCoordinates.latitude.toDouble(),
             _settingsScreenUiState.value.groceryStoreCoordinates.longitude.toDouble())
 
+    }
+
+    suspend fun deleteSettings() {
+        settingsRepository.deleteSettings(settingsScreenUiState.value.toSettings())
     }
 
 }
