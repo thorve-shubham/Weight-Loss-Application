@@ -1,9 +1,12 @@
 package com.cabcta10.weightlossapplication.uiState
 
+import com.cabcta10.weightlossapplication.entity.GeofenceCoordinates
 import com.cabcta10.weightlossapplication.entity.Settings
 
 data class SettingsScreenUiState(
-    val groceryStoreCoordinates: GroceryCoordinates = GroceryCoordinates()
+    val grocerySelectedLocation : Int = 0,
+    val fitnessSelectedLocation : Int = 0,
+    val geofenceCoordinates: List<GeofenceCoordinates> = mutableListOf()
 )
 
 data class GroceryCoordinates(
@@ -13,6 +16,6 @@ data class GroceryCoordinates(
 
 fun SettingsScreenUiState.toSettings() : Settings = Settings(
     id = 1,
-    latitude  = groceryStoreCoordinates.latitude.toDouble(),
-    longitude =  groceryStoreCoordinates.longitude.toDouble()
+    grocerySelectedLocation = grocerySelectedLocation,
+    fitnessSelectedLocation = fitnessSelectedLocation
 )

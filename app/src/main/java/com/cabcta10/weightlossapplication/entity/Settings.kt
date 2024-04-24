@@ -7,6 +7,6 @@ import androidx.room.PrimaryKey
 data class Settings (
     @PrimaryKey(autoGenerate = false)
     val id: Int = 1,
-    val latitude: Double = 0.0,
-    val longitude: Double = 0.0,
+    val grocerySelectedLocation : Int = 0,
+    val fitnessSelectedLocation : Int = 0
 )
