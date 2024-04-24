@@ -7,6 +7,7 @@ data class SettingsScreenUiState(
     val grocerySelectedLocation : Int = 0,
     val fitnessSelectedLocation : Int = 0,
     val geofenceCoordinates: List<GeofenceCoordinates> = mutableListOf()
+    val userUpdateValues: UserUpdateValues = UserUpdateValues()
 )
 
 data class GroceryCoordinates(
@@ -14,8 +15,30 @@ data class GroceryCoordinates(
     val longitude : String = "",
 )
 
+data class UserUpdateValues(
+    //val weight : String = "",
+    //val height : String = "",
+    //val targetWeight : String = "",
+    val defaultStepCount : String = "",
+    val waterIntake : String = "",
+    val groceryLocationLatitude : String = "",
+    val groceryLocationLongitude : String = "",
+    val gymLocationLatitude : String = "",
+    val gymLocationLongitude : String = "",
+    val sleepHours : String = "",
+
+    )
+
 fun SettingsScreenUiState.toSettings() : Settings = Settings(
     id = 1,
     grocerySelectedLocation = grocerySelectedLocation,
-    fitnessSelectedLocation = fitnessSelectedLocation
+    fitnessSelectedLocation = fitnessSelectedLocation,
+    defaultStepCount = userUpdateValues.defaultStepCount.toDouble(),
+    waterIntake = userUpdateValues.waterIntake.toDouble(),
+    groceryLocationLatitude = userUpdateValues.groceryLocationLatitude.toDouble(),
+    groceryLocationLongitude = userUpdateValues.groceryLocationLongitude.toDouble(),
+    gymLocationLatitude = userUpdateValues.gymLocationLatitude.toDouble(),
+    gymLocationLongitude = userUpdateValues.gymLocationLongitude.toDouble(),
+    sleepHours = userUpdateValues.sleepHours.toDouble()
+
 )

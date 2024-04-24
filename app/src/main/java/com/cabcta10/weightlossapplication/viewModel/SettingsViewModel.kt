@@ -11,6 +11,7 @@ import com.cabcta10.weightlossapplication.repository.SettingsRepository
 import com.cabcta10.weightlossapplication.service.GeofenceManagerService
 import com.cabcta10.weightlossapplication.uiState.GroceryCoordinates
 import com.cabcta10.weightlossapplication.uiState.SettingsScreenUiState
+import com.cabcta10.weightlossapplication.uiState.UserUpdateValues
 import com.cabcta10.weightlossapplication.uiState.toSettings
 import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -42,7 +43,6 @@ class SettingsViewModel (private val settingsRepository: SettingsRepository, pri
     private fun fetchDataFromDatabase() {
         viewModelScope.launch {
             settingsRepository.getSettings().collect { settingsFromDatabase ->
-                System.out.println("hehehe")
                 if(settingsFromDatabase != null) {
                     settingsExists = true
                     _settingsScreenUiState.value = _settingsScreenUiState.value.copy(
@@ -78,6 +78,14 @@ class SettingsViewModel (private val settingsRepository: SettingsRepository, pri
 
     @OptIn(DelicateCoroutinesApi::class)
     @RequiresApi(Build.VERSION_CODES.Q)
+    fun updateUserDetailsValue(userValues: UserUpdateValues) {
+        _settingsScreenUiState.update { currentState ->
+            currentState.copy(
+                userUpdateValues = userValues
+            )
+        }
+    }
+
     suspend fun saveSettings() {
         if(!settingsExists)
             settingsRepository.insertSettings(settingsScreenUiState.value.toSettings())
@@ -97,6 +105,10 @@ class SettingsViewModel (private val settingsRepository: SettingsRepository, pri
             }
         }
 
+    }
+
+    suspend fun deleteSettings() {
+        settingsRepository.deleteSettings(settingsScreenUiState.value.toSettings())
     }
 
 }
