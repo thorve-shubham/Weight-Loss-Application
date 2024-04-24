@@ -108,7 +108,9 @@ fun Base(context: Context) {
         content = {
             SettingsScreen(context)
         }
+    )
     }
-}
+
+
 
 

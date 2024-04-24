@@ -227,7 +227,12 @@ fun ApplySettings(
 
             }
             Button(onClick = { onApplyClick;
-                setSaveClicked(true) }) {
+                setSaveClicked(true)
+                /*val context: Context
+
+                // Call scheduleWorker function to schedule the worker
+                StepCountRewardWorker.scheduleWorker(context)*/
+            }) {
                 Text(text = "Apply")
 
             }
