@@ -297,19 +297,6 @@ fun userDetailsUpdate (userUpdateValues: UserUpdateValues,
     }
 }
 
-//fun userDetailsReset(userUpdateValues: UserUpdateValues,
-//                     updateUserDetailsValue: (UserUpdateValues)-> Unit
-//) {
-//    updateUserDetailsValue(
-//        userUpdateValues.copy(
-//            waterIntake = "",
-//            defaultStepCount = "",
-//            sleepHours = ""
-//        )
-//    )
-//
-//}
-
 @SuppressLint("StateFlowValueCalledInComposition", "NewApi")
 @Composable
 fun SettingsScreen(
