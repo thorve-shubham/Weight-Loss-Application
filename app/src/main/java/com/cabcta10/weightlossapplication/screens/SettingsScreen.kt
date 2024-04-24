@@ -2,7 +2,6 @@ package com.cabcta10.weightlossapplication.screens
 
 import android.annotation.SuppressLint
 import android.content.Context
-import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -19,19 +18,12 @@ import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
-import androidx.compose.material3.DropdownMenu
-import androidx.compose.material3.DropdownMenuItem
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.ExposedDropdownMenuBox
-import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Snackbar
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
-import androidx.compose.material3.TextField
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.CompositionLocalProvider
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -41,7 +33,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
@@ -50,14 +41,12 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.cabcta10.weightlossapplication.AppProvider
-import com.cabcta10.weightlossapplication.entity.GeofenceCoordinates
 import com.cabcta10.weightlossapplication.R
-import com.cabcta10.weightlossapplication.uiState.GroceryCoordinates
+import com.cabcta10.weightlossapplication.entity.GeofenceCoordinates
 import com.cabcta10.weightlossapplication.uiState.UserUpdateValues
 import com.cabcta10.weightlossapplication.viewModel.SettingsViewModel
 import kotlinx.coroutines.launch
 import kotlin.reflect.KFunction1
-
 
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -193,8 +182,6 @@ fun ApplySettings(
 ) {
     val (saveClicked, setSaveClicked) = remember { mutableStateOf(false) }
 
-
-
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -224,14 +211,13 @@ fun ApplySettings(
         ) {
             Button(onClick = onCancelClick) {
                 Text(text = "Reset")
-
             }
-            Button(onClick = { onApplyClick;
-                setSaveClicked(true) }) {
+            Button(onClick = {
+                onApplyClick()
+                setSaveClicked(true)
+            }) {
                 Text(text = "Apply")
-
             }
-
 
         }
 
@@ -299,140 +285,7 @@ fun userDetailsUpdate (userUpdateValues: UserUpdateValues,
             modifier = Modifier.fillMaxWidth()
         )
         Spacer(modifier = Modifier.padding(16.dp))
-        Text(text = "Select the Grocery and Gym Locations: ", modifier = Modifier.padding(10.dp))
-        var isExpanded by remember {
-            mutableStateOf(value = false)
-        }
-        var locations by remember {
-            mutableStateOf(value = "")
-        }
-        var latitude by remember {
-            mutableStateOf(value = "")
-        }
-        var longitude by remember {
-            mutableStateOf(value = "")
-        }
-        ExposedDropdownMenuBox(expanded = isExpanded, onExpandedChange = {
-            isExpanded = it
-        },
-        ) {
 
-            TextField(
-                value = locations,
-                onValueChange = {},
-                readOnly = true,
-                trailingIcon = {
-                    ExposedDropdownMenuDefaults.TrailingIcon(expanded = isExpanded)
-                },
-                colors = ExposedDropdownMenuDefaults.textFieldColors(),
-                modifier = Modifier
-                    .fillMaxWidth(1.2f) // Adjust the width here
-                    .padding(end = 20.dp) // Add padding to match your previous code
-                    .menuAnchor()
-            )
-            ExposedDropdownMenu(
-                expanded = isExpanded,
-
-
-                onDismissRequest = { isExpanded = false},
-            ) {
-                DropdownMenuItem(text = {
-                    Text(text = "Aldi"
-                    )},
-                    onClick = {
-                        locations = "Aldi"
-                        latitude = "19"
-                        longitude = "21"
-                        isExpanded = false
-                        updateUserDetailsValue(userUpdateValues.copy(groceryLocationLatitude = latitude, groceryLocationLongitude = longitude))
-                    },
-                )
-                DropdownMenuItem(text = {
-                    Text(text = "Tesco") },
-                    onClick = {
-                        locations = "Tesco"
-                        latitude = "219"
-                        longitude = "221"
-                        isExpanded = false
-                        updateUserDetailsValue(userUpdateValues.copy(groceryLocationLatitude = latitude, groceryLocationLongitude = longitude))
-                    })
-            }
-
-        }
-
-        /*OutlinedTextField(
-           value = userUpdateValues.groceryLocation,
-           onValueChange = { updateUserDetailsValue(userUpdateValues.copy(groceryLocation = it)) },
-           label = { Text("Grocery Location") },
-           keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-           modifier = Modifier.fillMaxWidth()
-       )*/
-
-
-        Spacer(modifier = Modifier.padding(16.dp))
-        var isExpandedGym by remember {
-            mutableStateOf(value = false)
-        }
-        var locationsGym by remember {
-            mutableStateOf(value = "")
-        }
-        var latitudeGym by remember {
-            mutableStateOf(value = "")
-        }
-        var longitudeGym by remember {
-            mutableStateOf(value = "")
-        }
-        ExposedDropdownMenuBox(expanded = isExpandedGym, onExpandedChange = {
-            isExpandedGym = it
-        }) {
-
-            TextField(
-                value = locationsGym,
-                onValueChange = {},
-                readOnly = true,
-                trailingIcon = {
-                    ExposedDropdownMenuDefaults.TrailingIcon(expanded = isExpandedGym)
-                },
-                colors = ExposedDropdownMenuDefaults.textFieldColors(),
-                modifier = Modifier
-                    .fillMaxWidth(1.2f) // Adjust the width here
-                    .padding(end = 20.dp) // Add padding to match your previous code
-                    .menuAnchor())
-            ExposedDropdownMenu(
-                expanded = isExpandedGym,
-                onDismissRequest = { isExpandedGym = false}
-            ) {
-                DropdownMenuItem(text = {
-                    Text(text = "Strath Sport") },
-                    onClick = {
-                        locationsGym = "Strath Sport"
-                        latitudeGym = "119"
-                        longitudeGym = "121"
-                        isExpandedGym = false
-                        updateUserDetailsValue(userUpdateValues.copy(gymLocationLatitude = latitudeGym, gymLocationLongitude = longitudeGym))
-                    },
-                )
-                DropdownMenuItem(text = {
-                    Text(text = "Glasgow Gym") },
-                    onClick = {
-                        locationsGym = "Glasgow Gym"
-                        latitudeGym = "319"
-                        longitudeGym = "321"
-                        isExpandedGym = false
-                        updateUserDetailsValue(userUpdateValues.copy(gymLocationLatitude = latitudeGym, gymLocationLongitude = longitudeGym))
-                    })
-            }
-
-        }
-
-        /*OutlinedTextField(
-            value = userUpdateValues.gymLocation,
-            onValueChange = { updateUserDetailsValue(userUpdateValues.copy(gymLocation = it)) },
-            label = { Text("Gym Location") },
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-            modifier = Modifier.fillMaxWidth()
-        )*/
-        Spacer(modifier = Modifier.padding(16.dp))
         OutlinedTextField(
             value = userUpdateValues.sleepHours,
             onValueChange = { updateUserDetailsValue(userUpdateValues.copy(sleepHours = it)) },
@@ -444,20 +297,20 @@ fun userDetailsUpdate (userUpdateValues: UserUpdateValues,
     }
 }
 
-fun userDetailsReset(userUpdateValues: UserUpdateValues,
-                     updateUserDetailsValue: (UserUpdateValues)-> Unit
-) {
-    updateUserDetailsValue(
-        userUpdateValues.copy(
-            waterIntake = "",
-            defaultStepCount = "",
-            sleepHours = ""
-        )
-    )
+//fun userDetailsReset(userUpdateValues: UserUpdateValues,
+//                     updateUserDetailsValue: (UserUpdateValues)-> Unit
+//) {
+//    updateUserDetailsValue(
+//        userUpdateValues.copy(
+//            waterIntake = "",
+//            defaultStepCount = "",
+//            sleepHours = ""
+//        )
+//    )
+//
+//}
 
-}
-
-@SuppressLint("StateFlowValueCalledInComposition")
+@SuppressLint("StateFlowValueCalledInComposition", "NewApi")
 @Composable
 fun SettingsScreen(
     context: Context = LocalContext.current,
@@ -486,21 +339,16 @@ fun SettingsScreen(
             geofenceCoordinates = settingsScreenUiState.geofenceCoordinates
         )
 
-
         FitnessStoreCoordinates(
             fitnessSelectedLocation = settingsScreenUiState.fitnessSelectedLocation,
             updateFitnessCoordinates = settingsViewModel::updateFitnessCoordinates,
             geofenceCoordinates = settingsScreenUiState.geofenceCoordinates
         )
 
-
         ApplySettings({
             coroutineScope.launch {
                 settingsViewModel.deleteSettings()
-                userDetailsReset(
-                    userUpdateValues = settingsScreenUiState.userUpdateValues,
-                    updateUserDetailsValue = settingsViewModel::updateUserDetailsValue
-                )
+                settingsViewModel.resetSettingsScreen()
             }
         }, {
             coroutineScope.launch {
