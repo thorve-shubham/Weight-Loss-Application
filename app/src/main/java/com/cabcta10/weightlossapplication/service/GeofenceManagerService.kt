@@ -16,19 +16,28 @@ import com.google.android.gms.location.LocationServices
 class GeofenceManagerService(private val context: Context) {
 
     private val geofencingClient: GeofencingClient = LocationServices.getGeofencingClient(context)
-    private val geofencingRequest = "geofenceRequest";
+
     fun addGeofence(
         latitude: Double,
-        longitude: Double
+        longitude: Double,
+        isFitness: Boolean
     ) {
         println("here")
-        if (ActivityCompat.checkSelfPermission(
-                context,
-                Manifest.permission.ACCESS_FINE_LOCATION
-            ) != PackageManager.PERMISSION_GRANTED
+        if (ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED &&
+            ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_BACKGROUND_LOCATION) != PackageManager.PERMISSION_GRANTED &&
+            ActivityCompat.checkSelfPermission(context, Manifest.permission.ACCESS_COARSE_LOCATION) != PackageManager.PERMISSION_GRANTED
         ) {
+            println("App dont have enough permissions to create Geofence...")
             return
         }
+
+        var geofencingRequest = ""
+        if(isFitness) {
+            geofencingRequest = "FITNESS"
+        } else {
+            geofencingRequest = "GROCERY"
+        }
+
         println("we have permissions")
         val geofence = Geofence.Builder()
             .setRequestId(geofencingRequest)
@@ -38,20 +47,24 @@ class GeofenceManagerService(private val context: Context) {
             .setLoiteringDelay(5000)
             .build()
 
-        removeGeofence()
-        println("removed existing geofence..")
-        geofencingClient.addGeofences(getGeofencingRequest(geofence), getPendingIntent(context)).run {
+        removeGeofence(listOf(geofencingRequest))
+        println("removed existing geofence..\nRequest ID : $geofencingRequest")
+        geofencingClient.addGeofences(getGeofencingRequest(geofence), getPendingIntent(context, geofencingRequest)).run {
             addOnSuccessListener {
-                println("Added Geofence...$latitude and $longitude")
+                println("Added Geofence...$latitude and $longitude \nRequest Id : $geofencingRequest")
             }
             addOnFailureListener {
-                println("Failed to add Geofence...")
+                it.printStackTrace()
+                println("Failed to add Geofence...\n$latitude and $longitude \n" +
+                        "Request Id : $geofencingRequest")
             }
         }
     }
 
-    private fun getPendingIntent(context: Context): PendingIntent {
-        val intent = Intent(context, GeofenceBroadcastReceiver::class.java)
+    private fun getPendingIntent(context: Context, geofencingRequest : String): PendingIntent {
+        val intent = Intent(context, GeofenceBroadcastReceiver::class.java).apply {
+            putExtra("GEOFENCE_REQUEST_ID", geofencingRequest)
+        }
         return PendingIntent.getBroadcast(
             context,
             0,
@@ -60,8 +73,8 @@ class GeofenceManagerService(private val context: Context) {
         )
     }
 
-    private fun removeGeofence() {
-        geofencingClient.removeGeofences(listOf(geofencingRequest))
+    private fun removeGeofence(geofencingRequest : List<String>) {
+        geofencingClient.removeGeofences(geofencingRequest)
     }
 
     private fun getGeofencingRequest(geofence: Geofence): GeofencingRequest {
