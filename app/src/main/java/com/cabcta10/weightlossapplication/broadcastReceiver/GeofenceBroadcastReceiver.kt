@@ -18,6 +18,12 @@ class GeofenceBroadcastReceiver(): BroadcastReceiver() {
         "\uD83D\uDED2 Make a healthier choice today! Swap sugary drinks for refreshing water. Don't forget to pick up some lemons or limes at the grocery store for added flavor! \uD83D\uDCA7\uD83C\uDF4B",
     )
 
+    private val fitnessMessages = arrayOf(
+        "\uD83D\uDCA7 Keep yourself hydrated during workout to keep the weight loss journey intact!",
+        "\uD83D\uDCAA Keep up the momentum! A quick session at the gym is all it takes to stay on track with your weight loss journey. You've got this!",
+        "\uD83D\uDEB4\u200D♀\uFE0F Pedal your way to progress! The fitness studio nearby is waiting to help you achieve your weight loss goals. Keep moving forward!",
+    )
+
     override fun onReceive(context: Context?, intent: Intent?) {
         println("received intent....")
         if (intent != null && context!= null) {
@@ -29,20 +35,26 @@ class GeofenceBroadcastReceiver(): BroadcastReceiver() {
                     return
                 }
             }
+            val geofenceRequestId = intent.getStringExtra("GEOFENCE_REQUEST_ID")
+            println(geofenceRequestId)
             when(geofencingEvent?.geofenceTransition) {
                 Geofence.GEOFENCE_TRANSITION_ENTER -> {
-                    NotificationUtil.displayNotification(context, getRandomNotificationMessage(), R.drawable.grocery_store)
+                    NotificationUtil.displayNotification(context, getRandomNotificationMessage(geofenceRequestId), R.drawable.grocery_store)
                     println("Entered")
                 }
             }
         }
     }
 
-    fun getRandomNotificationMessage (): String {
-        val randomIndex = Random.nextInt(0, groceryMessages.size)
+    private fun getRandomNotificationMessage (geofenceRequestId : String?): String {
+        if(geofenceRequestId == "GROCERY"){
+            val randomIndex = Random.nextInt(0, groceryMessages.size)
+            return groceryMessages[randomIndex]
+        } else {
+            val randomIndex = Random.nextInt(0, fitnessMessages.size)
+            return fitnessMessages[randomIndex]
+        }
 
-        // Return the message at the randomly generated index
-        return groceryMessages[randomIndex]
     }
 
     companion object {

@@ -12,7 +12,10 @@ import com.cabcta10.weightlossapplication.service.GeofenceManagerService
 import com.cabcta10.weightlossapplication.uiState.GroceryCoordinates
 import com.cabcta10.weightlossapplication.uiState.SettingsScreenUiState
 import com.cabcta10.weightlossapplication.uiState.toSettings
+import kotlinx.coroutines.DelicateCoroutinesApi
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.GlobalScope
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asFlow
@@ -49,7 +52,6 @@ class SettingsViewModel (private val settingsRepository: SettingsRepository, pri
 
                 }
                 geofenceCoordinatesRepository.getCoordinates().collect { coordinatesList ->
-                    // Update _settingsScreenUiState with all coordinates
                     _settingsScreenUiState.value = _settingsScreenUiState.value.copy(
                         geofenceCoordinates = coordinatesList
                     )
@@ -74,6 +76,7 @@ class SettingsViewModel (private val settingsRepository: SettingsRepository, pri
         }
     }
 
+    @OptIn(DelicateCoroutinesApi::class)
     @RequiresApi(Build.VERSION_CODES.Q)
     suspend fun saveSettings() {
         if(!settingsExists)
@@ -83,13 +86,15 @@ class SettingsViewModel (private val settingsRepository: SettingsRepository, pri
 
         //getting grocery Coordinates
         geofenceCoordinatesRepository.getCoordinatesById(settingsScreenUiState.value.grocerySelectedLocation).collect {geofenceCoordinate ->
-            geofenceManagerService.addGeofence(geofenceCoordinate.latitude.toDouble(),geofenceCoordinate.longitude.toDouble())
+            geofenceManagerService.addGeofence(geofenceCoordinate.latitude.toDouble(),geofenceCoordinate.longitude.toDouble(), false)
 
-//            println("Adding 2nd now")
-//
-//            geofenceCoordinatesRepository.getCoordinatesById(settingsScreenUiState.value.fitnessSelectedLocation).collect { geofenceCoordinate ->
-//                geofenceManagerService.addGeofence(geofenceCoordinate.latitude.toDouble(),geofenceCoordinate.longitude.toDouble(), true)
-//            }
+            GlobalScope.launch {
+                delay(3000)
+                println("Creating 2nd Geofence with 3 sec delay")
+                geofenceCoordinatesRepository.getCoordinatesById(settingsScreenUiState.value.fitnessSelectedLocation).collect { geofenceCoordinate ->
+                    geofenceManagerService.addGeofence(geofenceCoordinate.latitude.toDouble(),geofenceCoordinate.longitude.toDouble(), true)
+                }
+            }
         }
 
     }
