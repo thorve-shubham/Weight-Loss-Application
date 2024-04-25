@@ -7,19 +7,11 @@ import androidx.room.PrimaryKey
 data class Settings (
     @PrimaryKey(autoGenerate = false)
     val id: Int = 1,
-    //val latitude: Double = 0.0,
-    //val longitude: Double = 0.0,
-    //val weight : Double = 0.0,
-    //val height : Double = 0.0,
-    //val targetWeight : Double = 0.0,
+    val grocerySelectedLocation : Int = 0,
+    val fitnessSelectedLocation : Int = 0,
     val defaultStepCount : Double = 0.0,
     val waterIntake : Double = 0.0,
-    val groceryLocationLatitude : Double = 0.0,
-    val groceryLocationLongitude : Double = 0.0,
-    val gymLocationLatitude : Double = 0.0,
-    val gymLocationLongitude : Double = 0.0,
     val sleepStartTime: String = "23:00",
     val sleepEndTime: String = "7:00"
-    )
+)
 
-data class SleepTimings(val startTime: String, val endTime: String)

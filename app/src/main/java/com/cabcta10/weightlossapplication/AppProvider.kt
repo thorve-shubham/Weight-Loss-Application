@@ -11,7 +11,7 @@ object AppProvider {
     val Factory = { context: Context ->
         viewModelFactory {
             initializer {
-                SettingsViewModel(this.healthApp().container.settingsRepository, context)
+                SettingsViewModel(this.healthApp().container.settingsRepository, this.healthApp().container.geofenceCoordinatesRepository, context)
             }
         }
     }

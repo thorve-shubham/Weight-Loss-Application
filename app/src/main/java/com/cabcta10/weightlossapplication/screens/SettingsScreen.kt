@@ -5,6 +5,8 @@ import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.drawable.shapes.RectShape
 import android.graphics.drawable.shapes.Shape
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -18,6 +20,7 @@ import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
@@ -58,37 +61,135 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.cabcta10.weightlossapplication.AppProvider
 import com.cabcta10.weightlossapplication.R
-import com.cabcta10.weightlossapplication.uiState.GroceryCoordinates
+import com.cabcta10.weightlossapplication.entity.GeofenceCoordinates
 import com.cabcta10.weightlossapplication.uiState.UserUpdateValues
 import com.cabcta10.weightlossapplication.viewModel.SettingsViewModel
 import kotlinx.coroutines.launch
 import kotlin.math.round
+import kotlin.reflect.KFunction1
 
+
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun GroceryStoreCoordinates(groceryCoordinates: GroceryCoordinates,
-                            updateStoreCoordinates: (GroceryCoordinates)-> Unit) {
+fun GroceryStoreCoordinates(
+    grocerySelectedLocation: Int,
+    updateStoreCoordinates: KFunction1<Int, Unit>,
+    geofenceCoordinates: List<GeofenceCoordinates>
+) {
+    var expanded by remember { mutableStateOf(false) }
+    var groceryLocation = geofenceCoordinates.firstOrNull { it.id == grocerySelectedLocation }
+    var groceryCoordinates = geofenceCoordinates.filter { it.type == "grocery" }
     Column(
         modifier = Modifier
             .fillMaxWidth()
             .padding(16.dp)
     ) {
-        Text(text = "Enter Grocery Coordinates", modifier = Modifier.padding(10.dp))
-        OutlinedTextField(
-            value = groceryCoordinates.latitude,
-            onValueChange = { updateStoreCoordinates(groceryCoordinates.copy(latitude = it)) },
-            label = { Text("Latitude") },
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(bottom = 8.dp)
-        )
-        OutlinedTextField(
-            value = groceryCoordinates.longitude,
-            onValueChange = { updateStoreCoordinates(groceryCoordinates.copy(longitude = it)) },
-            label = { Text("Longitude") },
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-            modifier = Modifier.fillMaxWidth()
-        )
+        Text(text = "Where do you buy Groceries ?", modifier = Modifier.padding(10.dp))
+
+        ExposedDropdownMenuBox(
+            expanded = expanded,
+            onExpandedChange = {
+                expanded = !expanded
+            }
+        ) {
+            if (groceryLocation != null) {
+                TextField(
+                    value = groceryLocation!!.name,
+                    onValueChange = {},
+                    readOnly = true,
+                    trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
+                    modifier = Modifier.menuAnchor()
+                )
+            } else {
+                // Show placeholder text when groceryLocation is empty
+                TextField(
+                    value = "Select Grocery Shop",
+                    onValueChange = {},
+                    readOnly = true,
+                    trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
+                    modifier = Modifier.menuAnchor()
+                )
+            }
+
+            ExposedDropdownMenu(
+                expanded = expanded,
+                onDismissRequest = { expanded = false }
+            ) {
+                groceryCoordinates.forEach { item ->
+                    DropdownMenuItem(
+                        text = { Text(text = item.name) },
+                        onClick = {
+                            groceryLocation = item
+                            expanded = false
+                            updateStoreCoordinates(item.id)
+                        }
+                    )
+                }
+            }
+        }
+
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun FitnessStoreCoordinates(
+    fitnessSelectedLocation: Int,
+    updateFitnessCoordinates: KFunction1<Int, Unit>,
+    geofenceCoordinates: List<GeofenceCoordinates>
+) {
+    var expanded by remember { mutableStateOf(false) }
+
+    var fitnessLocation = geofenceCoordinates.firstOrNull { it.id == fitnessSelectedLocation }
+
+    var fitnessCoordinates = geofenceCoordinates.filter { it.type == "fitness" }
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(16.dp)
+    ) {
+        Text(text = "Where do you Workout ?", modifier = Modifier.padding(10.dp))
+        ExposedDropdownMenuBox(
+            expanded = expanded,
+            onExpandedChange = {
+                expanded = !expanded
+            }
+        ) {
+            if (fitnessLocation != null) {
+                TextField(
+                    value = fitnessLocation!!.name,
+                    onValueChange = {},
+                    readOnly = true,
+                    trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
+                    modifier = Modifier.menuAnchor()
+                )
+            } else {
+                // Show placeholder text when groceryLocation is empty
+                TextField(
+                    value = "Select Fitness Studio",
+                    onValueChange = {},
+                    readOnly = true,
+                    trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
+                    modifier = Modifier.menuAnchor()
+                )
+            }
+
+            ExposedDropdownMenu(
+                expanded = expanded,
+                onDismissRequest = { expanded = false }
+            ) {
+                fitnessCoordinates.forEach { item ->
+                    DropdownMenuItem(
+                        text = { Text(text = item.name) },
+                        onClick = {
+                            fitnessLocation = item
+                            expanded = false
+                            updateFitnessCoordinates(item.id)
+                        }
+                    )
+                }
+            }
+        }
     }
 }
 @Composable
@@ -198,7 +299,7 @@ fun userDetailsUpdate (userUpdateValues: UserUpdateValues,
             modifier = Modifier
                 .fillMaxWidth()
         )
-        Spacer(modifier = Modifier.padding(16.dp))
+        Spacer(modifier = Modifier.padding(10.dp))
 
         OutlinedTextField(
             value = userUpdateValues.waterIntake,
@@ -209,140 +310,8 @@ fun userDetailsUpdate (userUpdateValues: UserUpdateValues,
                 imeAction = ImeAction.Next),
             modifier = Modifier.fillMaxWidth()
         )
-        Spacer(modifier = Modifier.padding(16.dp))
-        Text(text = "Select the Grocery and Gym Locations: ", modifier = Modifier.padding(10.dp))
-        var isExpanded by remember {
-            mutableStateOf(value = false)
-        }
-        var locations by remember {
-            mutableStateOf(value = "")
-        }
-        var latitude by remember {
-            mutableStateOf(value = "")
-        }
-        var longitude by remember {
-            mutableStateOf(value = "")
-        }
-        ExposedDropdownMenuBox(expanded = isExpanded, onExpandedChange = {
-            isExpanded = it
-        },
-        ) {
+        Spacer(modifier = Modifier.padding(10.dp))
 
-            TextField(
-                value = locations,
-                onValueChange = {},
-                readOnly = true,
-                trailingIcon = {
-                    ExposedDropdownMenuDefaults.TrailingIcon(expanded = isExpanded)
-                },
-                colors = ExposedDropdownMenuDefaults.textFieldColors(),
-                modifier = Modifier
-                    .fillMaxWidth(1.2f) // Adjust the width here
-                    .padding(end = 20.dp) // Add padding to match your previous code
-                    .menuAnchor()
-            )
-            ExposedDropdownMenu(
-                expanded = isExpanded,
-
-
-                onDismissRequest = { isExpanded = false},
-            ) {
-                DropdownMenuItem(text = {
-                    Text(text = "Aldi"
-                    )},
-                    onClick = {
-                        locations = "Aldi"
-                        latitude = "19"
-                        longitude = "21"
-                        isExpanded = false
-                        updateUserDetailsValue(userUpdateValues.copy(groceryLocationLatitude = latitude, groceryLocationLongitude = longitude))
-                    },
-                )
-                DropdownMenuItem(text = {
-                    Text(text = "Tesco") },
-                    onClick = {
-                        locations = "Tesco"
-                        latitude = "219"
-                        longitude = "221"
-                        isExpanded = false
-                        updateUserDetailsValue(userUpdateValues.copy(groceryLocationLatitude = latitude, groceryLocationLongitude = longitude))
-                    })
-            }
-
-        }
-
-        /*OutlinedTextField(
-           value = userUpdateValues.groceryLocation,
-           onValueChange = { updateUserDetailsValue(userUpdateValues.copy(groceryLocation = it)) },
-           label = { Text("Grocery Location") },
-           keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-           modifier = Modifier.fillMaxWidth()
-       )*/
-
-
-        Spacer(modifier = Modifier.padding(16.dp))
-        var isExpandedGym by remember {
-            mutableStateOf(value = false)
-        }
-        var locationsGym by remember {
-            mutableStateOf(value = "")
-        }
-        var latitudeGym by remember {
-            mutableStateOf(value = "")
-        }
-        var longitudeGym by remember {
-            mutableStateOf(value = "")
-        }
-        ExposedDropdownMenuBox(expanded = isExpandedGym, onExpandedChange = {
-            isExpandedGym = it
-        }) {
-
-            TextField(
-                value = locationsGym,
-                onValueChange = {},
-                readOnly = true,
-                trailingIcon = {
-                    ExposedDropdownMenuDefaults.TrailingIcon(expanded = isExpandedGym)
-                },
-                colors = ExposedDropdownMenuDefaults.textFieldColors(),
-                modifier = Modifier
-                    .fillMaxWidth(1.2f) // Adjust the width here
-                    .padding(end = 20.dp) // Add padding to match your previous code
-                    .menuAnchor())
-            ExposedDropdownMenu(
-                expanded = isExpandedGym,
-                onDismissRequest = { isExpandedGym = false}
-            ) {
-                DropdownMenuItem(text = {
-                    Text(text = "Strath Sport") },
-                    onClick = {
-                        locationsGym = "Strath Sport"
-                        latitudeGym = "119"
-                        longitudeGym = "121"
-                        isExpandedGym = false
-                        updateUserDetailsValue(userUpdateValues.copy(gymLocationLatitude = latitudeGym, gymLocationLongitude = longitudeGym))
-                    },
-                )
-                DropdownMenuItem(text = {
-                    Text(text = "Glasgow Gym") },
-                    onClick = {
-                        locationsGym = "Glasgow Gym"
-                        latitudeGym = "319"
-                        longitudeGym = "321"
-                        isExpandedGym = false
-                        updateUserDetailsValue(userUpdateValues.copy(gymLocationLatitude = latitudeGym, gymLocationLongitude = longitudeGym))
-                    })
-            }
-
-        }
-
-        /*OutlinedTextField(
-            value = userUpdateValues.gymLocation,
-            onValueChange = { updateUserDetailsValue(userUpdateValues.copy(gymLocation = it)) },
-            label = { Text("Gym Location") },
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
-            modifier = Modifier.fillMaxWidth()
-        )*/
         var showStartDialog by remember { mutableStateOf(false) }
         var showEndDialog by remember { mutableStateOf(false) }
 
@@ -402,22 +371,7 @@ fun userDetailsUpdate (userUpdateValues: UserUpdateValues,
 
     }
 }
-
-fun userDetailsReset(userUpdateValues: UserUpdateValues,
-                     updateUserDetailsValue: (UserUpdateValues)-> Unit
-) {
-    updateUserDetailsValue(
-        userUpdateValues.copy(
-            waterIntake = "0.0",
-            defaultStepCount = "0.0",
-            sleepStartTime = "23:00",
-            sleepEndTime = "7:00"
-        )
-    )
-
-}
-
-@SuppressLint("StateFlowValueCalledInComposition")
+@SuppressLint("StateFlowValueCalledInComposition", "NewApi")
 @Composable
 fun SettingsScreen(
     context: Context = LocalContext.current,
@@ -430,23 +384,51 @@ fun SettingsScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-//            .padding(horizontal = 16.dp)
+            .padding(16.dp)
     ) {
+
         ApplicationTitle()
-        userDetailsUpdate(
-            userUpdateValues = settingsScreenUiState.userUpdateValues,
-            updateUserDetailsValue = settingsViewModel::updateUserDetailsValue,
 
-            )
-        /*GroceryStoreCoordinates(groceryCoordinates = settingsScreenUiState.groceryStoreCoordinates,
-            updateStoreCoordinates = settingsViewModel::updateStoreCoordinates
-        )*/
 
-        ApplySettings({  coroutineScope.launch {
-            settingsViewModel.deleteSettings()
-            userDetailsReset(userUpdateValues = settingsScreenUiState.userUpdateValues,
-                updateUserDetailsValue = settingsViewModel::updateUserDetailsValue)
-        } }, {
+        LazyColumn(
+            modifier = Modifier
+                .weight(1f) // Occupy remaining vertical space
+        ) {
+            item {
+                userDetailsUpdate(
+                    userUpdateValues = settingsScreenUiState.userUpdateValues,
+                    updateUserDetailsValue = settingsViewModel::updateUserDetailsValue
+                )
+            }
+
+            item {
+                GroceryStoreCoordinates(
+                    grocerySelectedLocation = settingsScreenUiState.grocerySelectedLocation,
+                    updateStoreCoordinates = settingsViewModel::updateStoreCoordinates,
+                    geofenceCoordinates = settingsScreenUiState.geofenceCoordinates
+                )
+            }
+
+            item {
+                FitnessStoreCoordinates(
+                    fitnessSelectedLocation = settingsScreenUiState.fitnessSelectedLocation,
+                    updateFitnessCoordinates = settingsViewModel::updateFitnessCoordinates,
+                    geofenceCoordinates = settingsScreenUiState.geofenceCoordinates
+                )
+            }
+
+            // Add a Spacer at the end of the scrollable section to push content to the top
+            item {
+                Spacer(modifier = Modifier.height(16.dp))
+            }
+        }
+
+        ApplySettings({
+            coroutineScope.launch {
+                settingsViewModel.deleteSettings()
+                settingsViewModel.resetSettingsScreen()
+            }
+        }, {
             coroutineScope.launch {
                 settingsViewModel.saveSettings()
             }
