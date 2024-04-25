@@ -72,15 +72,15 @@ class MainActivity : ComponentActivity() {
         scheduleStepCounterWorker()
     }
 
-    fun scheduleStepCounterWorker() {
+    private fun scheduleStepCounterWorker() {
+        val repeatInterval = 120  // in minutes;
         val workRequest = PeriodicWorkRequestBuilder<StepCountRewardWorker>(
-            16,
+            repeatInterval.toLong(),
             TimeUnit.MINUTES
         ).build()
         WorkManager.getInstance(this).enqueue(
             workRequest
         )
-        println("Scheduled..")
     }
 }
 
@@ -109,5 +109,4 @@ fun Base(context: Context) {
         }
     )
 }
-
 

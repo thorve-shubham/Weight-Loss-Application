@@ -1,96 +1,50 @@
+
 import android.content.Context
-import androidx.compose.foundation.layout.Column
-//import androidx.compose.material.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.MutableState
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.ui.unit.Constraints
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.viewModelScope
-import androidx.work.*
+import androidx.work.CoroutineWorker
+import androidx.work.WorkerParameters
+import com.cabcta10.weightlossapplication.AppDatabase
 import com.cabcta10.weightlossapplication.R
+import com.cabcta10.weightlossapplication.repository.SettingsRepository
+import com.cabcta10.weightlossapplication.repositoryImpl.SettingsRepositoryImpl
 import com.cabcta10.weightlossapplication.service.NotificationUtil
-import com.cabcta10.weightlossapplication.uiState.SettingsScreenUiState
-import com.cabcta10.weightlossapplication.viewModel.SettingsViewModel
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.launch
-import kotlinx.coroutines.withContext
-import java.util.concurrent.TimeUnit
+import kotlinx.coroutines.flow.firstOrNull
 
-// Dummy class representing your database
-/*class Database {
-    suspend fun getStepCount(): Int {
-        // Simulate fetching step count from database
-        return withContext(Dispatchers.IO) {
-            // Actual database query or operation here
-            5000
-        }
+
+    private suspend fun fetchStepCountValuesFromDatabase(settingsRepository: SettingsRepository): Int {
+        val s = settingsRepository.getSettings().firstOrNull()
+
+            if (s != null) {
+                return 10000 //return s.defaultStepCount .toInt()  // have to change according to the database String Name
+            } else {
+                return 0;
+            }
     }
-}
+    private suspend fun fetchTargetStepCount(settingsRepository: SettingsRepository): Int {
 
-class StepCountRewardViewModel : ViewModel() {
-    val stepCount: MutableState<Int> = mutableStateOf(0)
+            val s = settingsRepository.getSettings().firstOrNull()
 
-    fun fetchStepCountFromDatabase() {
-        viewModelScope.launch {
-            val database = Database()
-            val count = database.getStepCount()
-            stepCount.value = count
-        }
-    }
-}*/
+                if (s != null) {
+                    return s.defaultStepCount .toInt()
+                } else {
+                    return 0;
+                }
 
-/*@Composable
-fun StepCountReward(viewModel: SettingsViewModel = androidx.lifecycle.viewmodel.compose.viewModel()) {
-    val stepCount = viewModel.stepCount.value
-    //val DEFAULT_STEP_THRESHOLD = 10000
-    val notificationContent = if (stepCount > DEFAULT_STEP_THRESHOLD) {
-        "Congratulations! You have reached your daily step goal."
-    } else {
-        "Keep going! You're getting closer to your daily step goal."
     }
 
-    Column {
-        Text("Step Count: $stepCount")
-        Text(notificationContent)
-    }
-}*/
-    private val _settingsScreenUiState = MutableStateFlow(SettingsScreenUiState())
-    val settingsScreenUiState: StateFlow<SettingsScreenUiState> = _settingsScreenUiState.asStateFlow()
+class StepCountRewardWorker(appContext: Context, workerParams: WorkerParameters
+) :    CoroutineWorker(appContext, workerParams) {
 
-    fun fetchStepCountValuesFromDatabase(): Int {
-       return 10000;
-    }
-
-    fun fetchTargetStepCount(): Int {
-        val defaultStepCountString = _settingsScreenUiState.value.userUpdateValues.defaultStepCount
-        return try {
-            defaultStepCountString.toIntOrNull() ?: 0
-        } catch (e: NumberFormatException) {
-            0
-        }
-    }
-
-class StepCountRewardWorker(appContext: Context, workerParams: WorkerParameters) :
-    CoroutineWorker(appContext, workerParams) {
 
     override suspend fun doWork(): Result {
 
-        val stepCount = fetchStepCountValuesFromDatabase()
 
-        val targetStepCount = fetchTargetStepCount()
-        println("Periodic")
+        val settingsRepository = SettingsRepositoryImpl(AppDatabase.getDatabase(applicationContext).settingsDAO())
+        val targetStepCount = fetchTargetStepCount(settingsRepository)
+        val stepCount = fetchStepCountValuesFromDatabase(settingsRepository)
+
         if (stepCount == targetStepCount) {
-            println("Periodic")
-            NotificationUtil.displayNotification(applicationContext, "Congratulations! You have reached your daily step goal.", R.drawable.grocery_store)
+            NotificationUtil.displayNotification(applicationContext, "Congratulations! You've reached your step goal. Keep up the momentum to stay active.\n", R.drawable.dumbbell)
         }
         return Result.success()
     }
-
-
-
-
 }
