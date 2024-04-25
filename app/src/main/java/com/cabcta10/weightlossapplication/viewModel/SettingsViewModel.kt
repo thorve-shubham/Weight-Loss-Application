@@ -5,6 +5,7 @@ import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.AlarmManager
 import android.app.PendingIntent
+import android.content.ContentValues.TAG
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
@@ -16,10 +17,11 @@ import androidx.core.content.ContextCompat
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import androidx.work.Constraints
+import androidx.work.ExistingPeriodicWorkPolicy
 import androidx.work.NetworkType
 import androidx.work.OneTimeWorkRequestBuilder
+import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
-import com.cabcta10.weightlossapplication.broadcastReceiver.SleepAPIBroadcastReceiver
 import com.cabcta10.weightlossapplication.repository.GeofenceCoordinatesRepository
 import com.cabcta10.weightlossapplication.repository.SettingsRepository
 import com.cabcta10.weightlossapplication.service.GeofenceManagerService
@@ -38,6 +40,8 @@ import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.util.*
+import java.util.concurrent.TimeUnit
+private const val SLEEP_WORK_TAG = "SleepMonitoring"
 
 class SettingsViewModel (private val settingsRepository: SettingsRepository, private val geofenceCoordinatesRepository: GeofenceCoordinatesRepository , private val context: Context) : ViewModel()  {
     private val _settingsScreenUiState = MutableStateFlow(SettingsScreenUiState())
@@ -45,8 +49,8 @@ class SettingsViewModel (private val settingsRepository: SettingsRepository, pri
     private var settingsExists: Boolean = false
     private var sleepRequestManager: SleepRequestManager? = null
     private val geofenceManagerService = GeofenceManagerService.getInstance(context)
-    private val alarmManager: AlarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
-    private val REQUEST_CODE_ALARM = 12345 // Define your request code here
+//    private val alarmManager: AlarmManager = context.getSystemService(Context.ALARM_SERVICE) as AlarmManager
+//    private val REQUEST_CODE_ALARM = 12345 // Define your request code here
 
     init {
         fetchDataFromDatabase()
@@ -60,7 +64,9 @@ class SettingsViewModel (private val settingsRepository: SettingsRepository, pri
 
                     val userUpdateValues = UserUpdateValues(
                         settingsFromDatabase.defaultStepCount.toString(),
-                        settingsFromDatabase.waterIntake.toString()
+                        settingsFromDatabase.waterIntake.toString(),
+                        settingsFromDatabase.sleepStartTime.toString(),
+                        settingsFromDatabase.sleepEndTime.toString()
                     )
                     _settingsScreenUiState.value = _settingsScreenUiState.value.copy(
                         grocerySelectedLocation = settingsFromDatabase.grocerySelectedLocation,
@@ -109,16 +115,13 @@ class SettingsViewModel (private val settingsRepository: SettingsRepository, pri
         else
             settingsRepository.updateSettings(settingsScreenUiState.value.toSettings())
 
-//
-//        viewModelScope.launch {
-//            if (hasActivityRecognitionPermission()) {
-//                // Permission is granted, proceed to save settings
-//                scheduleSleepMonitoring()
-//            } else {
-//                // Permission is not granted, request it
-//                requestActivityRecognitionPermission()
-//            }
-//        }
+        GlobalScope.launch {
+            if (hasActivityRecognitionPermission()) {
+                scheduleSleepMonitoring()
+            } else {
+                requestActivityRecognitionPermission()
+            }
+        }
         //getting grocery Coordinates
         geofenceCoordinatesRepository.getCoordinatesById(settingsScreenUiState.value.grocerySelectedLocation).collect {geofenceCoordinate ->
             geofenceManagerService.addGeofence(geofenceCoordinate.latitude.toDouble(),geofenceCoordinate.longitude.toDouble(), false)
@@ -142,39 +145,35 @@ class SettingsViewModel (private val settingsRepository: SettingsRepository, pri
         )
     }
 
-    @SuppressLint("ScheduleExactAlarm")
-    fun scheduleSleepMonitoring() {
-        val sleepStartCalendar = Calendar.getInstance()
-        val sleepEndCalendar = Calendar.getInstance()
-        sleepEndCalendar.add(Calendar.HOUR_OF_DAY, 8) // Example: 8 hours sleep duration
-        Log.d(sleepEndCalendar.toString(), "")
-        val intent = Intent(context, SleepAPIBroadcastReceiver::class.java)
-        val pendingIntent = PendingIntent.getBroadcast(
-            context,
-            REQUEST_CODE_ALARM,
-            intent,
-            PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_MUTABLE
-        )
+    private fun scheduleSleepMonitoring() {
+        val settings = _settingsScreenUiState.value.toSettings()
 
-        // Schedule the alarm to trigger sleep monitoring
-        alarmManager.setExact(
-            AlarmManager.RTC_WAKEUP,
-            sleepStartCalendar.timeInMillis,
-            pendingIntent
-        )
+        val sleepStartTime = parseTimeToCalendar(settings.sleepStartTime)
+        val sleepEndTime = parseTimeToCalendar(settings.sleepEndTime)
+        val currentTimeMillis = System.currentTimeMillis()
 
-        // Create constraints for WorkManager
-        val constraints = Constraints.Builder()
-            .setRequiredNetworkType(NetworkType.CONNECTED)
+        if (currentTimeMillis > sleepEndTime.timeInMillis) {
+            Log.d(TAG, "Current time is after sleep end time. Sleep monitoring not scheduled.")
+            return
+        }
+
+        val delayMillis = sleepStartTime.timeInMillis - currentTimeMillis
+        val durationMillis = sleepEndTime.timeInMillis - sleepStartTime.timeInMillis
+
+        // Create a unique work request with a dynamic schedule
+        val workRequest = PeriodicWorkRequestBuilder<SleepRequestManager>(
+            repeatInterval = 10, // 10 minutes interval
+            repeatIntervalTimeUnit = TimeUnit.MINUTES
+        )
+            .setInitialDelay(delayMillis, TimeUnit.MILLISECONDS)
             .build()
 
-        // Create a OneTimeWorkRequest for SleepMonitorWorker
-        val workRequest = OneTimeWorkRequestBuilder<SleepRequestManager>()
-            .setConstraints(constraints)
-            .build()
-
-        // Enqueue the work request with WorkManager
-        WorkManager.getInstance(context).enqueue(workRequest)
+        // Enqueue the periodic work request
+        WorkManager.getInstance(context).enqueueUniquePeriodicWork(
+            SLEEP_WORK_TAG,
+            ExistingPeriodicWorkPolicy.REPLACE,
+            workRequest
+        )
     }
     suspend fun deleteSettings() {
         settingsRepository.deleteSettings(settingsScreenUiState.value.toSettings())
@@ -196,6 +195,25 @@ class SettingsViewModel (private val settingsRepository: SettingsRepository, pri
             PERMISSION_REQUEST_CODE
         )
     }
+
+    private fun parseTimeToCalendar(timeString: String): Calendar {
+        val calendar = Calendar.getInstance()
+        val (hour, minute) = timeString.split(":")
+
+        val parsedHour = hour.toInt()
+        val parsedMinute = minute.toInt()
+
+        if (parsedHour < calendar.get(Calendar.HOUR_OF_DAY) || (parsedHour == calendar.get(Calendar.HOUR_OF_DAY) && parsedMinute < calendar.get(Calendar.MINUTE))) {
+            // End time is on the next day
+            calendar.add(Calendar.DAY_OF_YEAR, 1) // Move to the next day
+        }
+
+        calendar.set(Calendar.HOUR_OF_DAY, hour.toInt())
+        calendar.set(Calendar.MINUTE, minute.toInt())
+        calendar.set(Calendar.SECOND, 0)
+        return calendar
+    }
+
 
     companion object {
         private const val PERMISSION_REQUEST_CODE = 123

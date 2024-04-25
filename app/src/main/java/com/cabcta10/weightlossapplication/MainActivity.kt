@@ -38,6 +38,7 @@ class MainActivity : ComponentActivity() {
             Manifest.permission.ACCESS_COARSE_LOCATION,
             Manifest.permission.ACCESS_FINE_LOCATION,
             Manifest.permission.POST_NOTIFICATIONS,
+            Manifest.permission.ACTIVITY_RECOGNITION
         )
 
         super.onCreate(savedInstanceState)
@@ -69,7 +70,7 @@ class MainActivity : ComponentActivity() {
             }
         }
         // Call StepCountRewardWorker.scheduleWorker(context) here to register the worker
-        scheduleStepCounterWorker()
+//        scheduleStepCounterWorker()
     }
 
     fun scheduleStepCounterWorker() {

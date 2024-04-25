@@ -32,7 +32,7 @@
         </activity>
 
         <receiver android:name=".broadcastReceiver.GeofenceBroadcastReceiver" />
-        <receiver android:name=".broadcastReceiver.SleepAPIBroadcastReceiver"/>
+        <receiver android:name=".broadcastReceiver.UserActivityReceiver"/>
     </application>
 
 </manifest>
