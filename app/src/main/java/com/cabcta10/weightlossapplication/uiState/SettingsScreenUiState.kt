@@ -1,6 +1,8 @@
 package com.cabcta10.weightlossapplication.uiState
 
+import android.content.Context
 import com.cabcta10.weightlossapplication.entity.Settings
+import java.util.Calendar
 
 data class SettingsScreenUiState(
     val groceryStoreCoordinates: GroceryCoordinates = GroceryCoordinates(),
@@ -22,9 +24,8 @@ data class UserUpdateValues(
     val groceryLocationLongitude : String = "",
     val gymLocationLatitude : String = "",
     val gymLocationLongitude : String = "",
-    val sleepHours : String = ""
-//    val sleepStartTime: String = "",
-//    val sleepEndTime: String = ""
+    val sleepStartTime: String = "23:00",
+    val sleepEndTime: String = "7:00"
     )
 
 fun SettingsScreenUiState.toSettings() : Settings = Settings(
@@ -34,12 +35,14 @@ fun SettingsScreenUiState.toSettings() : Settings = Settings(
     //weight = userUpdateValues.weight.toDouble(),
     //height = userUpdateValues.height.toDouble(),
     //targetWeight = userUpdateValues.targetWeight.toDouble(),
-    defaultStepCount = userUpdateValues.defaultStepCount.toDouble(),
-    waterIntake = userUpdateValues.waterIntake.toDouble(),
-    groceryLocationLatitude = userUpdateValues.groceryLocationLatitude.toDouble(),
-    groceryLocationLongitude = userUpdateValues.groceryLocationLongitude.toDouble(),
-    gymLocationLatitude = userUpdateValues.gymLocationLatitude.toDouble(),
-    gymLocationLongitude = userUpdateValues.gymLocationLongitude.toDouble(),
-    sleepHours = userUpdateValues.sleepHours.toDouble()
-
+    defaultStepCount = userUpdateValues.defaultStepCount.takeIf { it.isNotBlank() }?.toDoubleOrNull() ?: 0.0,
+    waterIntake = userUpdateValues.waterIntake.takeIf { it.isNotBlank() }?.toDoubleOrNull() ?: 0.0,
+    groceryLocationLatitude = userUpdateValues.groceryLocationLatitude.takeIf { it.isNotBlank() }?.toDoubleOrNull() ?: 0.0,
+    groceryLocationLongitude = userUpdateValues.groceryLocationLongitude.takeIf { it.isNotBlank() }?.toDoubleOrNull() ?: 0.0,
+    gymLocationLatitude = userUpdateValues.gymLocationLatitude.takeIf { it.isNotBlank() }?.toDoubleOrNull() ?: 0.0,
+    gymLocationLongitude = userUpdateValues.gymLocationLongitude.takeIf { it.isNotBlank() }?.toDoubleOrNull() ?: 0.0,
+    sleepStartTime = userUpdateValues.sleepStartTime ?: "23:00",
+    sleepEndTime = userUpdateValues.sleepEndTime ?: "7:00"
 )
+
+

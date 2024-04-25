@@ -1,10 +1,14 @@
 package com.cabcta10.weightlossapplication
 
 import android.content.Context
+import android.content.Intent
+import android.net.Uri
 import android.os.Build
 import android.os.Bundle
+import android.provider.Settings
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.annotation.RequiresApi
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.material3.MaterialTheme
@@ -33,6 +37,16 @@ class MainActivity : ComponentActivity() {
                 }
             }
         }
+
+        val permissionRequester = registerForActivityResult(
+            ActivityResultContracts.RequestPermission()
+        ) { isGranted ->
+            if (!isGranted) {
+                requestActivityRecognitionPermission(this)
+            } else {
+                // Permission is granted, handle accordingly
+            }
+        }
     }
 }
 
@@ -40,6 +54,20 @@ class MainActivity : ComponentActivity() {
 fun Base(context: Context) {
     SettingsScreen(context)
 }
+
+
+private fun requestActivityRecognitionPermission(context: Context) {
+
+    val intent = Intent().apply {
+        action = Settings.ACTION_APPLICATION_DETAILS_SETTINGS
+        data = Uri.fromParts("package", context.packageName, null)
+        flags = Intent.FLAG_ACTIVITY_NEW_TASK
+    }
+
+    context.startActivity(intent)
+}
+
+
 
 @Preview(showBackground = true, showSystemUi = true)
 @Composable

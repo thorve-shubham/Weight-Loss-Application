@@ -1,9 +1,13 @@
 package com.cabcta10.weightlossapplication.screens
-
+import SimpleTimePicker
+import TimeUtil
 import android.annotation.SuppressLint
 import android.content.Context
-import android.util.Log
+import android.graphics.drawable.shapes.RectShape
+import android.graphics.drawable.shapes.Shape
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -12,19 +16,27 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
-import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Snackbar
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.TextField
+import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.TopAppBarColors
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -34,12 +46,13 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -49,6 +62,7 @@ import com.cabcta10.weightlossapplication.uiState.GroceryCoordinates
 import com.cabcta10.weightlossapplication.uiState.UserUpdateValues
 import com.cabcta10.weightlossapplication.viewModel.SettingsViewModel
 import kotlinx.coroutines.launch
+import kotlin.math.round
 
 @Composable
 fun GroceryStoreCoordinates(groceryCoordinates: GroceryCoordinates,
@@ -77,88 +91,92 @@ fun GroceryStoreCoordinates(groceryCoordinates: GroceryCoordinates,
         )
     }
 }
-
 @Composable
 fun ApplySettings(
     onCancelClick: () -> Unit,
     onApplyClick: () -> Unit
 ) {
-    val (saveClicked, setSaveClicked) = remember { mutableStateOf(false) }
+    var snackbarVisible by remember { mutableStateOf(false) }
 
-
+    if (snackbarVisible) {
+        Snackbar(
+            modifier = Modifier.padding(16.dp),
+            action = {
+                TextButton(onClick = { snackbarVisible = false }) {
+                    Text(text = "Dismiss")
+                }
+            },
+            content = {
+                Text(text = "Changes saved successfully!")
+            }
+        )
+    }
 
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(top = 20.dp, bottom = 90.dp)
+            .padding(vertical = 20.dp)
     ) {
-        // Content of your settings here
-
         Spacer(modifier = Modifier.weight(1f))
 
-        if (saveClicked) {
-            // Show the Snackbar and reset saveClicked after a short delay
-            Snackbar(
-                modifier = Modifier.padding(16.dp),
-                action = {
-                    TextButton(onClick = { setSaveClicked(false) }) {
-                        Text(text = stringResource(id = android.R.string.ok))
-                    }
-                },
-                content = { Text("Changes saved successfully!") },
-            )
-        }
-        // Buttons at the bottom
+        // Buttons at the bottom with 50% width and evenly spaced
         Row(
-            modifier = Modifier.fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceEvenly,
-            verticalAlignment = Alignment.CenterVertically
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.Bottom
         ) {
-            Button(onClick = onCancelClick) {
+            Button(
+                onClick = onCancelClick,
+                modifier = Modifier
+                    .weight(.4f)
+                    .padding(vertical = 8.dp, horizontal = 10.dp),
+                shape = RoundedCornerShape(5.dp),
+                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.secondary) // Example: Apply button with blue background
+
+            ) {
                 Text(text = "Reset")
-
-            }
-            Button(onClick = { onApplyClick;
-                setSaveClicked(true) }) {
-                Text(text = "Apply")
-
             }
 
-
+            Button(
+                onClick = {
+                    onApplyClick()
+                    snackbarVisible = true
+                },
+                modifier = Modifier
+                    .weight(.4f)
+                    .padding(vertical = 8.dp, horizontal = 10.dp),
+                shape = RoundedCornerShape(5.dp),
+                colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary) // Example: Apply button with blue background
+            ) {
+                Text(text = "Apply", color = Color.White)
+            }
         }
-
     }
 }
 
 @Composable
-fun ApplicationTitle(){
-    Column(
-        modifier = Modifier
-            .fillMaxWidth()
-            .padding(30.dp)
-    ) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth(),
-            horizontalArrangement = Arrangement.Center,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            Image(
-                painter = painterResource(R.drawable.dumbell),
-                contentDescription = null,
-                //contentScale = ContentScale.Crop,
-                modifier = Modifier
-                    .width(40.dp)
-                    .height(40.dp)
-            )
-            Text(
-                text = "Weight Loss",
-                modifier = Modifier.padding(10.dp),
-                fontSize = 25.sp
-            )
-        }
-    }
+fun ApplicationTitle() {
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.fillMaxWidth().padding(20.dp),
+                horizontalArrangement = Arrangement.Center
+
+            ) {
+                Image(
+                    painter = painterResource(R.drawable.dumbell),
+                    contentDescription = null,
+                    modifier = Modifier.size(45.dp).padding(end=5.dp)
+                )
+                Spacer(modifier = Modifier.width(8.dp))
+                Text(
+                    text = "Weight Loss",
+                    fontSize = 30.sp
+                )
+            }
 }
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -167,7 +185,8 @@ fun userDetailsUpdate (userUpdateValues: UserUpdateValues,
     Column(
         modifier = Modifier
             .fillMaxWidth()
-            .padding(top = 120.dp, start = 16.dp, end = 16.dp)
+            .padding(start = 16.dp, end = 16.dp)
+            .verticalScroll(rememberScrollState())
     ) {
         Text(text = "Enter The Details Below", modifier = Modifier.padding(20.dp))
         OutlinedTextField(
@@ -324,15 +343,63 @@ fun userDetailsUpdate (userUpdateValues: UserUpdateValues,
             keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number),
             modifier = Modifier.fillMaxWidth()
         )*/
+        var showStartDialog by remember { mutableStateOf(false) }
+        var showEndDialog by remember { mutableStateOf(false) }
+
         Spacer(modifier = Modifier.padding(16.dp))
-        OutlinedTextField(
-            value = userUpdateValues.sleepHours,
-            onValueChange = { updateUserDetailsValue(userUpdateValues.copy(sleepHours = it)) },
-            label = { Text("Sleep Hours") },
-            keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number,
-                imeAction = ImeAction.Done),
-            modifier = Modifier.fillMaxWidth()
+        Text("Sleep Start Time")
+        OutlinedButton(
+            onClick = { showStartDialog = true },
+            modifier = Modifier.fillMaxWidth().height(45.dp),
+            shape = RoundedCornerShape(0),
+            content = {
+                Text(text = userUpdateValues.sleepStartTime,
+                    textAlign = TextAlign.Start, // Align text to the left
+                    color = Color.Black)
+
+            }
         )
+
+
+        Spacer(modifier = Modifier.padding(16.dp))
+        Text("Sleep End Time")
+        OutlinedButton(
+            onClick = {
+                showEndDialog = true
+                      },
+            modifier = Modifier.fillMaxWidth().height(45.dp),
+            shape = RoundedCornerShape(0),
+            content = {
+                Text(text = userUpdateValues.sleepEndTime,
+                    textAlign = TextAlign.Left, // Align text to the left
+                    color = Color.Black)
+            }
+        )
+
+
+
+        if (showStartDialog) {
+            SimpleTimePicker(timeString = userUpdateValues.sleepStartTime) { newStartTime ->
+                updateUserDetailsValue(
+                    userUpdateValues.copy(
+                        sleepStartTime = newStartTime
+                    )
+                )
+                showStartDialog = false
+            }
+        }
+
+        if (showEndDialog) {
+            SimpleTimePicker(timeString = userUpdateValues.sleepEndTime) { newEndTime ->
+                updateUserDetailsValue(
+                    userUpdateValues.copy(
+                        sleepEndTime = newEndTime
+                    )
+                )
+                showEndDialog = false
+            }
+        }
+
     }
 }
 
@@ -341,9 +408,10 @@ fun userDetailsReset(userUpdateValues: UserUpdateValues,
 ) {
     updateUserDetailsValue(
         userUpdateValues.copy(
-            waterIntake = "",
-            defaultStepCount = "",
-            sleepHours = ""
+            waterIntake = "0.0",
+            defaultStepCount = "0.0",
+            sleepStartTime = "23:00",
+            sleepEndTime = "7:00"
         )
     )
 
@@ -358,30 +426,33 @@ fun SettingsScreen(
 
     val coroutineScope = rememberCoroutineScope()
     val settingsScreenUiState by settingsViewModel.settingsScreenUiState.collectAsState()
-    ApplicationTitle()
-    userDetailsUpdate(
-        userUpdateValues = settingsScreenUiState.userUpdateValues,
-        updateUserDetailsValue = settingsViewModel::updateUserDetailsValue,
 
-        )
-    /*GroceryStoreCoordinates(groceryCoordinates = settingsScreenUiState.groceryStoreCoordinates,
-        updateStoreCoordinates = settingsViewModel::updateStoreCoordinates
-    )*/
+    Column(
+        modifier = Modifier
+            .fillMaxSize()
+//            .padding(horizontal = 16.dp)
+    ) {
+        ApplicationTitle()
+        userDetailsUpdate(
+            userUpdateValues = settingsScreenUiState.userUpdateValues,
+            updateUserDetailsValue = settingsViewModel::updateUserDetailsValue,
 
-    ApplySettings({  coroutineScope.launch {
-        settingsViewModel.deleteSettings()
-        userDetailsReset(userUpdateValues = settingsScreenUiState.userUpdateValues,
-            updateUserDetailsValue = settingsViewModel::updateUserDetailsValue)
-    } }, {
-        coroutineScope.launch {
-            settingsViewModel.saveSettings()
-        }
-    })
+            )
+        /*GroceryStoreCoordinates(groceryCoordinates = settingsScreenUiState.groceryStoreCoordinates,
+            updateStoreCoordinates = settingsViewModel::updateStoreCoordinates
+        )*/
 
+        ApplySettings({  coroutineScope.launch {
+            settingsViewModel.deleteSettings()
+            userDetailsReset(userUpdateValues = settingsScreenUiState.userUpdateValues,
+                updateUserDetailsValue = settingsViewModel::updateUserDetailsValue)
+        } }, {
+            coroutineScope.launch {
+                settingsViewModel.saveSettings()
+            }
+        })
+    }
 }
-
-
-
 
 
 

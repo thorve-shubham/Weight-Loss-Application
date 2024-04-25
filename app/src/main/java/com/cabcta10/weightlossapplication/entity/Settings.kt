@@ -18,6 +18,8 @@ data class Settings (
     val groceryLocationLongitude : Double = 0.0,
     val gymLocationLatitude : Double = 0.0,
     val gymLocationLongitude : Double = 0.0,
-    val sleepHours : Double = 0.0,
-
+    val sleepStartTime: String = "23:00",
+    val sleepEndTime: String = "7:00"
     )
+
+data class SleepTimings(val startTime: String, val endTime: String)
