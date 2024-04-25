@@ -162,20 +162,15 @@ class SleepRequestManager(private val context: Context, params: WorkerParameters
     }
 
     private fun isPhoneInUse(): Boolean {
-        val activityManager = context.getSystemService(Context.ACTIVITY_SERVICE) as? ActivityManager
-        val recentTasks = activityManager?.getRunningTasks(1)
-        if (recentTasks != null && recentTasks.isNotEmpty()) {
-            val topTask = recentTasks[0]
-            val packageName = topTask.baseActivity?.packageName
-            if (packageName != null && packageName == context.packageName) {
-                // The current foreground task belongs to this app (active usage)
+        val telephonyManager = context.getSystemService(Context.TELEPHONY_SERVICE) as? TelephonyManager
+        if (telephonyManager != null) {
+            // Check if there is an ongoing phone call
+            if (telephonyManager.callState != TelephonyManager.CALL_STATE_IDLE) {
                 return true
             }
         }
 
-        // Check if there is ongoing phone call
-        val telephonyManager = context.getSystemService(Context.TELEPHONY_SERVICE) as? TelephonyManager
-        return telephonyManager?.callState != TelephonyManager.CALL_STATE_IDLE
+        return isScreenInteractive()
     }
 
 
