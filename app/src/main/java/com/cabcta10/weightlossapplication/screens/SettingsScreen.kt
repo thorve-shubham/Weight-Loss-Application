@@ -176,10 +176,12 @@ fun FitnessStoreCoordinates(
 
             ExposedDropdownMenu(
                 expanded = expanded,
-                onDismissRequest = { expanded = false }
+                onDismissRequest = { expanded = false },
+                modifier = Modifier.fillMaxWidth()
             ) {
                 fitnessCoordinates.forEach { item ->
                     DropdownMenuItem(
+                        modifier = Modifier.fillMaxWidth(),
                         text = { Text(text = item.name) },
                         onClick = {
                             fitnessLocation = item
@@ -216,7 +218,7 @@ fun ApplySettings(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(vertical = 20.dp)
+            .padding(vertical = 5.dp)
     ) {
         Spacer(modifier = Modifier.weight(1f))
 
@@ -268,7 +270,7 @@ fun ApplicationTitle() {
                 Image(
                     painter = painterResource(R.drawable.dumbell),
                     contentDescription = null,
-                    modifier = Modifier.size(45.dp).padding(end=5.dp)
+                    modifier = Modifier.size(45.dp).padding(end=0.dp)
                 )
                 Spacer(modifier = Modifier.width(8.dp))
                 Text(
@@ -287,7 +289,6 @@ fun userDetailsUpdate (userUpdateValues: UserUpdateValues,
         modifier = Modifier
             .fillMaxWidth()
             .padding(start = 16.dp, end = 16.dp)
-            .verticalScroll(rememberScrollState())
     ) {
         Text(text = "Enter The Details Below", modifier = Modifier.padding(20.dp))
         OutlinedTextField(
@@ -299,7 +300,7 @@ fun userDetailsUpdate (userUpdateValues: UserUpdateValues,
             modifier = Modifier
                 .fillMaxWidth()
         )
-        Spacer(modifier = Modifier.padding(10.dp))
+        Spacer(modifier = Modifier.padding(5.dp))
 
         OutlinedTextField(
             value = userUpdateValues.waterIntake,
@@ -315,7 +316,7 @@ fun userDetailsUpdate (userUpdateValues: UserUpdateValues,
         var showStartDialog by remember { mutableStateOf(false) }
         var showEndDialog by remember { mutableStateOf(false) }
 
-        Spacer(modifier = Modifier.padding(16.dp))
+        Spacer(modifier = Modifier.padding(5.dp))
         Text("Sleep Start Time")
         OutlinedButton(
             onClick = { showStartDialog = true },
@@ -330,7 +331,7 @@ fun userDetailsUpdate (userUpdateValues: UserUpdateValues,
         )
 
 
-        Spacer(modifier = Modifier.padding(16.dp))
+        Spacer(modifier = Modifier.padding(5.dp))
         Text("Sleep End Time")
         OutlinedButton(
             onClick = {
@@ -384,45 +385,25 @@ fun SettingsScreen(
     Column(
         modifier = Modifier
             .fillMaxSize()
-            .padding(16.dp)
+            .padding(10.dp)
     ) {
 
         ApplicationTitle()
-
-
-        LazyColumn(
-            modifier = Modifier
-                .weight(1f) // Occupy remaining vertical space
-        ) {
-            item {
-                userDetailsUpdate(
-                    userUpdateValues = settingsScreenUiState.userUpdateValues,
-                    updateUserDetailsValue = settingsViewModel::updateUserDetailsValue
-                )
-            }
-
-            item {
-                GroceryStoreCoordinates(
-                    grocerySelectedLocation = settingsScreenUiState.grocerySelectedLocation,
-                    updateStoreCoordinates = settingsViewModel::updateStoreCoordinates,
-                    geofenceCoordinates = settingsScreenUiState.geofenceCoordinates
-                )
-            }
-
-            item {
-                FitnessStoreCoordinates(
-                    fitnessSelectedLocation = settingsScreenUiState.fitnessSelectedLocation,
-                    updateFitnessCoordinates = settingsViewModel::updateFitnessCoordinates,
-                    geofenceCoordinates = settingsScreenUiState.geofenceCoordinates
-                )
-            }
-
-            // Add a Spacer at the end of the scrollable section to push content to the top
-            item {
-                Spacer(modifier = Modifier.height(16.dp))
-            }
-        }
-
+        userDetailsUpdate(
+            userUpdateValues = settingsScreenUiState.userUpdateValues,
+            updateUserDetailsValue = settingsViewModel::updateUserDetailsValue
+        )
+        GroceryStoreCoordinates(
+            grocerySelectedLocation = settingsScreenUiState.grocerySelectedLocation,
+            updateStoreCoordinates = settingsViewModel::updateStoreCoordinates,
+            geofenceCoordinates = settingsScreenUiState.geofenceCoordinates
+        )
+        FitnessStoreCoordinates(
+            fitnessSelectedLocation = settingsScreenUiState.fitnessSelectedLocation,
+            updateFitnessCoordinates = settingsViewModel::updateFitnessCoordinates,
+            geofenceCoordinates = settingsScreenUiState.geofenceCoordinates
+        )
+        Spacer(modifier = Modifier.height(5.dp))
         ApplySettings({
             coroutineScope.launch {
                 settingsViewModel.deleteSettings()
