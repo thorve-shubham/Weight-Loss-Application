@@ -184,6 +184,8 @@ fun ApplySettings(
 ) {
     val (saveClicked, setSaveClicked) = remember { mutableStateOf(false) }
 
+
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -213,13 +215,17 @@ fun ApplySettings(
         ) {
             Button(onClick = onCancelClick) {
                 Text(text = "Reset")
+
             }
             Button(onClick = {
                 onApplyClick()
                 setSaveClicked(true)
             }) {
                 Text(text = "Apply")
+
             }
+
+
         }
 
     }
@@ -298,21 +304,7 @@ fun userDetailsUpdate (userUpdateValues: UserUpdateValues,
     }
 }
 
-fun userDetailsReset(userUpdateValues: UserUpdateValues,
-                     updateUserDetailsValue: (UserUpdateValues)-> Unit
-) {
-    updateUserDetailsValue(
-        userUpdateValues.copy(
-            waterIntake = "",
-            defaultStepCount = "",
-            sleepHours = ""
-        )
-    )
-
-}
-
-@RequiresApi(Build.VERSION_CODES.Q)
-@SuppressLint("StateFlowValueCalledInComposition")
+@SuppressLint("StateFlowValueCalledInComposition", "NewApi")
 @Composable
 fun SettingsScreen(
     context: Context = LocalContext.current,
@@ -341,21 +333,16 @@ fun SettingsScreen(
             geofenceCoordinates = settingsScreenUiState.geofenceCoordinates
         )
 
-
         FitnessStoreCoordinates(
             fitnessSelectedLocation = settingsScreenUiState.fitnessSelectedLocation,
             updateFitnessCoordinates = settingsViewModel::updateFitnessCoordinates,
             geofenceCoordinates = settingsScreenUiState.geofenceCoordinates
         )
 
-
         ApplySettings({
             coroutineScope.launch {
                 settingsViewModel.deleteSettings()
-                userDetailsReset(
-                    userUpdateValues = settingsScreenUiState.userUpdateValues,
-                    updateUserDetailsValue = settingsViewModel::updateUserDetailsValue
-                )
+                settingsViewModel.resetSettingsScreen()
             }
         }, {
             coroutineScope.launch {

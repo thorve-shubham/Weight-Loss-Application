@@ -13,17 +13,16 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.work.PeriodicWorkRequestBuilder
+import androidx.work.WorkManager
 import com.cabcta10.weightlossapplication.permissions.HandleRequest
 import com.cabcta10.weightlossapplication.permissions.HandleRequests
 import com.cabcta10.weightlossapplication.permissions.PermissionDeniedContent
-import androidx.compose.ui.tooling.preview.Preview
-import androidx.work.PeriodicWorkRequestBuilder
-import androidx.work.WorkManager
-import com.cabcta10.weightlossapplication.screens.PermissionRequestScreen
 import com.cabcta10.weightlossapplication.screens.SettingsScreen
 import com.cabcta10.weightlossapplication.ui.theme.WeightLossApplicationTheme
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
-import com.google.accompanist.permissions.*
+import com.google.accompanist.permissions.rememberMultiplePermissionsState
+import com.google.accompanist.permissions.rememberPermissionState
 import java.util.concurrent.TimeUnit
 
 class MainActivity : ComponentActivity() {
@@ -109,8 +108,6 @@ fun Base(context: Context) {
             SettingsScreen(context)
         }
     )
-    }
-
-
+}
 
 

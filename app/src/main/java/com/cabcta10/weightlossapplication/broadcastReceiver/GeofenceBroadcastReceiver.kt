@@ -36,10 +36,14 @@ class GeofenceBroadcastReceiver(): BroadcastReceiver() {
                 }
             }
             val geofenceRequestId = intent.getStringExtra("GEOFENCE_REQUEST_ID")
-            println(geofenceRequestId)
+            var image : Int = 0;
+            if(geofenceRequestId == "GROCERY")
+                image = R.drawable.grocery_store
+            else
+                image = R.drawable.dumbbell
             when(geofencingEvent?.geofenceTransition) {
                 Geofence.GEOFENCE_TRANSITION_ENTER -> {
-                    NotificationUtil.displayNotification(context, getRandomNotificationMessage(geofenceRequestId), R.drawable.grocery_store)
+                    NotificationUtil.displayNotification(context, getRandomNotificationMessage(geofenceRequestId), image)
                     println("Entered")
                 }
             }
