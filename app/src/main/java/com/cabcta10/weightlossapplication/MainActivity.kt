@@ -1,5 +1,6 @@
 package com.cabcta10.weightlossapplication
 
+import StepCountRewardWorker
 import android.Manifest
 import android.content.Context
 import android.os.Build
@@ -15,18 +16,22 @@ import androidx.compose.ui.Modifier
 import com.cabcta10.weightlossapplication.permissions.HandleRequest
 import com.cabcta10.weightlossapplication.permissions.HandleRequests
 import com.cabcta10.weightlossapplication.permissions.PermissionDeniedContent
+import androidx.compose.ui.tooling.preview.Preview
+import androidx.work.PeriodicWorkRequestBuilder
+import androidx.work.WorkManager
+import com.cabcta10.weightlossapplication.screens.PermissionRequestScreen
 import com.cabcta10.weightlossapplication.screens.SettingsScreen
 import com.cabcta10.weightlossapplication.ui.theme.WeightLossApplicationTheme
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.rememberMultiplePermissionsState
 import com.google.accompanist.permissions.rememberPermissionState
+import com.google.accompanist.permissions.*
+import java.util.concurrent.TimeUnit
 
 class MainActivity : ComponentActivity() {
 
     private val deniedMessage: String = "App needs notification and location permission to help you achieve your weight loss goal faster. \uD83D\uDCAA"
     private val rationaleMessage: String = "To use this app's functionalities to its fullest, you need to give app the needed permissions."
-
-
 
     @OptIn(ExperimentalPermissionsApi::class)
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
@@ -66,6 +71,19 @@ class MainActivity : ComponentActivity() {
                 )
             }
         }
+        // Call StepCountRewardWorker.scheduleWorker(context) here to register the worker
+        scheduleStepCounterWorker()
+    }
+
+    fun scheduleStepCounterWorker() {
+        val workRequest = PeriodicWorkRequestBuilder<StepCountRewardWorker>(
+            16,
+            TimeUnit.MINUTES
+        ).build()
+        WorkManager.getInstance(this).enqueue(
+            workRequest
+        )
+        println("Scheduled..")
     }
 }
 

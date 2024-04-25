@@ -2,6 +2,8 @@ package com.cabcta10.weightlossapplication.screens
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.os.Build
+import androidx.annotation.RequiresApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -182,6 +184,8 @@ fun ApplySettings(
 ) {
     val (saveClicked, setSaveClicked) = remember { mutableStateOf(false) }
 
+
+
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -211,13 +215,16 @@ fun ApplySettings(
         ) {
             Button(onClick = onCancelClick) {
                 Text(text = "Reset")
+
             }
             Button(onClick = {
                 onApplyClick()
                 setSaveClicked(true)
             }) {
                 Text(text = "Apply")
+
             }
+
 
         }
 
