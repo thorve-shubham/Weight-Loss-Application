@@ -6,7 +6,7 @@ import com.cabcta10.weightlossapplication.entity.Settings
 data class SettingsScreenUiState(
     val grocerySelectedLocation : Int = 0,
     val fitnessSelectedLocation : Int = 0,
-    val geofenceCoordinates: List<GeofenceCoordinates> = mutableListOf()
+    val geofenceCoordinates: List<GeofenceCoordinates> = mutableListOf(),
     val userUpdateValues: UserUpdateValues = UserUpdateValues()
 )
 
