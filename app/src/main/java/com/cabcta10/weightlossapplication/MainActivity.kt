@@ -18,12 +18,15 @@ import com.cabcta10.weightlossapplication.permissions.PermissionDeniedContent
 import com.cabcta10.weightlossapplication.screens.SettingsScreen
 import com.cabcta10.weightlossapplication.ui.theme.WeightLossApplicationTheme
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
-import com.google.accompanist.permissions.*
+import com.google.accompanist.permissions.rememberMultiplePermissionsState
+import com.google.accompanist.permissions.rememberPermissionState
 
 class MainActivity : ComponentActivity() {
 
     private val deniedMessage: String = "App needs notification and location permission to help you achieve your weight loss goal faster. \uD83D\uDCAA"
     private val rationaleMessage: String = "To use this app's functionalities to its fullest, you need to give app the needed permissions."
+
+
 
     @OptIn(ExperimentalPermissionsApi::class)
     @RequiresApi(Build.VERSION_CODES.TIRAMISU)
