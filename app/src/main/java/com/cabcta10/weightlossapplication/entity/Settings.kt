@@ -11,5 +11,7 @@ data class Settings (
     val fitnessSelectedLocation : Int = 0,
     val defaultStepCount : Double = 0.0,
     val waterIntake : Double = 0.0,
-    val sleepHours : Double = 0.0,
+    val sleepStartTime: String = "23:00",
+    val sleepEndTime: String = "7:00"
 )
+

@@ -13,8 +13,9 @@ data class SettingsScreenUiState(
 data class UserUpdateValues(
     val defaultStepCount : String = "",
     val waterIntake : String = "",
-    val sleepHours : String = ""
-)
+    val sleepStartTime: String = "23:00",
+    val sleepEndTime: String = "7:00"
+    )
 
 fun SettingsScreenUiState.toSettings() : Settings = Settings(
     id = 1,
@@ -22,5 +23,6 @@ fun SettingsScreenUiState.toSettings() : Settings = Settings(
     fitnessSelectedLocation = fitnessSelectedLocation,
     defaultStepCount = userUpdateValues.defaultStepCount.toDouble(),
     waterIntake = userUpdateValues.waterIntake.toDouble(),
-    sleepHours = userUpdateValues.sleepHours.toDouble()
+    sleepStartTime = userUpdateValues.sleepStartTime.toString(),
+    sleepEndTime = userUpdateValues.sleepEndTime.toString(),
 )
