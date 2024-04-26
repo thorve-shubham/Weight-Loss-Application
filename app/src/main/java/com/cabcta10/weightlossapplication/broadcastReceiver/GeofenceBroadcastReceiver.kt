@@ -37,9 +37,10 @@ class GeofenceBroadcastReceiver(): BroadcastReceiver() {
             }
             val geofenceRequestId = intent.getStringExtra("GEOFENCE_REQUEST_ID")
             var image : Int = 0;
+            println(geofenceRequestId)
             if(geofenceRequestId == "GROCERY")
                 image = R.drawable.grocery_store
-            else
+            else if(geofenceRequestId == "FITNESS")
                 image = R.drawable.dumbbell
             when(geofencingEvent?.geofenceTransition) {
                 Geofence.GEOFENCE_TRANSITION_ENTER -> {

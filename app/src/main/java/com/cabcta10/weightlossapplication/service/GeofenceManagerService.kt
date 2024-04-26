@@ -32,10 +32,10 @@ class GeofenceManagerService(private val context: Context) {
         }
 
         var geofencingRequest = ""
-        if(isFitness) {
-            geofencingRequest = "FITNESS"
+        geofencingRequest = if(isFitness) {
+            "FITNESS"
         } else {
-            geofencingRequest = "GROCERY"
+            "GROCERY"
         }
 
         println("we have permissions")
@@ -67,7 +67,7 @@ class GeofenceManagerService(private val context: Context) {
         }
         return PendingIntent.getBroadcast(
             context,
-            0,
+            geofencingRequest.hashCode(),
             intent,
             PendingIntent.FLAG_UPDATE_CURRENT or PendingIntent.FLAG_MUTABLE
         )

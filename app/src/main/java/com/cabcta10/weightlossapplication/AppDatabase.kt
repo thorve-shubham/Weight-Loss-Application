@@ -44,8 +44,8 @@ abstract class AppDatabase : RoomDatabase() {
                 getDatabase(context).geofenceCoordinatesDao().insert(
                     GeofenceCoordinates(
                         1,
-                        "55.85933606036693",
-                        "-4.240754911032492",
+                        "55.85918083428524",
+                        "-4.240740742195248",
                         "grocery",
                         "ALDI"
                     )
@@ -62,8 +62,8 @@ abstract class AppDatabase : RoomDatabase() {
                 getDatabase(context).geofenceCoordinatesDao().insert(
                     GeofenceCoordinates(
                         3,
-                        "55.863322916698465",
-                        "-4.242119714996397",
+                        "55.86334334643258",
+                        "-4.242138079132948",
                         "fitness",
                         "Strath Sport"
                     )
