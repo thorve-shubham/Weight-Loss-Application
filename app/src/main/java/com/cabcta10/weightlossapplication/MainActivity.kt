@@ -17,6 +17,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.work.OneTimeWorkRequestBuilder
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import com.cabcta10.weightlossapplication.permissions.HandleRequest
@@ -84,15 +85,24 @@ class MainActivity : ComponentActivity() {
     }
 
     private fun scheduleStepCounterWorker() {
-        val repeatInterval = 120  // in minutes;
-        val workRequest = PeriodicWorkRequestBuilder<StepCountRewardWorker>(
-            repeatInterval.toLong(),
-            TimeUnit.MINUTES
-        ).build()
+
+        val currentTimeMillis = System.currentTimeMillis()
+        val sevenPM = currentTimeMillis - currentTimeMillis % TimeUnit.DAYS.toMillis(1) + TimeUnit.HOURS.toMillis(20)
+        val delay = sevenPM - currentTimeMillis
+
+        // Add additional minutes to the delay
+        val additionalMinutes = 0
+        val delayWithMinutes = delay + TimeUnit.MINUTES.toMillis(additionalMinutes.toLong())
+
+        val workRequest = OneTimeWorkRequestBuilder<StepCountRewardWorker>()
+            .setInitialDelay(delayWithMinutes, TimeUnit.MILLISECONDS)
+            .build()
+
         WorkManager.getInstance(this).enqueue(
             workRequest
         )
-        println("Scheduled..")
+
+        println("Reward Worker is Ready")
     }
     private fun scheduleDailyStepWorker() {
         val resetRequest = PeriodicWorkRequestBuilder<StepWorker>(1, TimeUnit.DAYS)
