@@ -2,7 +2,9 @@ package com.cabcta10.weightlossapplication
 
 import StepCountRewardWorker
 import android.Manifest
+import android.app.Application
 import android.content.Context
+import android.hardware.SensorManager
 import android.os.Build
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -13,6 +15,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.work.PeriodicWorkRequestBuilder
 import androidx.work.WorkManager
 import com.cabcta10.weightlossapplication.permissions.HandleRequest
@@ -20,6 +24,8 @@ import com.cabcta10.weightlossapplication.permissions.HandleRequests
 import com.cabcta10.weightlossapplication.permissions.PermissionDeniedContent
 import com.cabcta10.weightlossapplication.screens.SettingsScreen
 import com.cabcta10.weightlossapplication.ui.theme.WeightLossApplicationTheme
+import com.cabcta10.weightlossapplication.viewModel.StepCounterViewModel
+import com.cabcta10.weightlossapplication.workerThread.StepWorker
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.rememberMultiplePermissionsState
 import com.google.accompanist.permissions.rememberPermissionState
@@ -63,7 +69,10 @@ class MainActivity : ComponentActivity() {
                             modifier = Modifier.fillMaxSize(),
                             color = MaterialTheme.colorScheme.background
                         ) {
-                            Base(this)
+                            val factory = StepCounterViewModelFactory(getSystemService(
+                                SENSOR_SERVICE) as SensorManager, this, application as Application
+                            )
+                            Base(this, factory)
                         }
                     }
                 )
@@ -71,6 +80,7 @@ class MainActivity : ComponentActivity() {
         }
         // Call StepCountRewardWorker.scheduleWorker(context) here to register the worker
 //        scheduleStepCounterWorker()
+        scheduleDailyStepWorker()
     }
 
     private fun scheduleStepCounterWorker() {
@@ -82,13 +92,24 @@ class MainActivity : ComponentActivity() {
         WorkManager.getInstance(this).enqueue(
             workRequest
         )
+        println("Scheduled..")
+    }
+    private fun scheduleDailyStepWorker() {
+        val resetRequest = PeriodicWorkRequestBuilder<StepWorker>(1, TimeUnit.DAYS)
+            .build()
+        WorkManager.getInstance(this).enqueue(resetRequest)
     }
 }
 
 @OptIn(ExperimentalPermissionsApi::class)
 @RequiresApi(Build.VERSION_CODES.Q)
 @Composable
-fun Base(context: Context) {
+fun Base(context: Context,
+         viewModelFactory: ViewModelProvider.Factory
+) {
+    val stepCounterViewModel: StepCounterViewModel = viewModel(
+        factory = viewModelFactory
+    )
 
     val permissionState = rememberPermissionState(Manifest.permission.ACCESS_BACKGROUND_LOCATION)
 
@@ -107,6 +128,7 @@ fun Base(context: Context) {
         },
         content = {
             SettingsScreen(context)
+            stepCounterViewModel.startCounting()
         }
     )
 }

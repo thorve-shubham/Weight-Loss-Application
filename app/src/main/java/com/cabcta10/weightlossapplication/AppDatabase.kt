@@ -7,17 +7,20 @@ import androidx.room.RoomDatabase
 import androidx.sqlite.db.SupportSQLiteDatabase
 import com.cabcta10.weightlossapplication.dao.GeofenceCoordinatesDao
 import com.cabcta10.weightlossapplication.dao.SettingsDao
+import com.cabcta10.weightlossapplication.dao.StepDao
 import com.cabcta10.weightlossapplication.entity.GeofenceCoordinates
 import com.cabcta10.weightlossapplication.entity.Settings
+import com.cabcta10.weightlossapplication.entity.StepData
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import java.util.concurrent.Executors
 
-@Database(version = 1, entities = [Settings::class, GeofenceCoordinates::class], exportSchema = false)
+@Database(version = 1, entities = [Settings::class, GeofenceCoordinates::class, StepData::class], exportSchema = false)
 abstract class AppDatabase : RoomDatabase() {
     abstract fun settingsDAO(): SettingsDao
     abstract fun geofenceCoordinatesDao(): GeofenceCoordinatesDao
+    abstract fun stepDao(): StepDao
 
     companion object {
         @Volatile
